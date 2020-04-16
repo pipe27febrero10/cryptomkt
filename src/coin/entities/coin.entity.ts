@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { ExchangeEntity } from '@exchange/entities/exchange.entity'
-956457051
+
 @Entity()
 export class CoinEntity{
     @PrimaryGeneratedColumn('uuid')
