@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ExchangeService } from './exchange.service';
 import { ExchangeController } from './exchange.controller';
-import { DatabaseModule } from '../database/database.module'
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Exchange } from '@exchange/entities/exchange.entity'
 
 @Module({
-  imports : [DatabaseModule],
+  imports : [TypeOrmModule.forFeature([Exchange])],
   providers: [ExchangeService],
-  controllers: [ExchangeController]
+  controllers: [ExchangeController],
+  exports : [ExchangeService]
 })
 export class ExchangeModule {}

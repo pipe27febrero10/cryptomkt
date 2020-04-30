@@ -13,7 +13,8 @@
     "paths" : {
       "@coin/*" : ["coin/*"],
       "@exchange/*" : ["exchange/*"],
-      "@cryptomkt/*" : ["cryptomkt/*"]
+      "@cryptomkt/*" : ["cryptomkt/*"],
+      "@user/*" : ["user/*"]
     }
   },
   "exclude": ["node_modules", "dist"]

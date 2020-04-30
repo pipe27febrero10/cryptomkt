@@ -1,14 +1,14 @@
-import { CoinEntity } from '@coin/entities/coin.entity'
+import { Coin } from 'coin/entities/coin.entity'
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity()
-export class ExchangeEntity{
+export class Exchange{
     @PrimaryGeneratedColumn('uuid')
     id : string;
-    @Column()
+    @Column({unique : true})
     name : string;
-    @Column({type : 'varchar',unique : true})
+    @Column({type : 'varchar'})
     website : string;
-    @OneToMany(type => CoinEntity,coinEntity => coinEntity.exchange)
-    coins : CoinEntity[]
+    @OneToMany(type => Coin,coinEntity => coinEntity.exchange)
+    coins : Coin[]
 }

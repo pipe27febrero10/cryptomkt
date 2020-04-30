@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { User } from '../user/entities/user.entity';
-import { ExchangeEntity } from '@exchange/entities/exchange.entity';
-import { CoinEntity } from '@coin/entities/coin.entity';
+import { User } from 'user/entities/user.entity';
+import { Exchange } from 'exchange/entities/exchange.entity';
+import { Coin } from 'coin/entities/coin.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({   
@@ -12,7 +12,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         username : 'root',
         password : 'pipiton27',
         database: 'test',
-        entities: [User,ExchangeEntity,CoinEntity],
+        entities: [User,Exchange,Coin],
         synchronize: true,
       })]
 })

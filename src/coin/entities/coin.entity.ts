@@ -1,20 +1,21 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
-import { ExchangeEntity } from '@exchange/entities/exchange.entity'
+import { Exchange } from 'exchange/entities/exchange.entity'
 
 @Entity()
-export class CoinEntity{
+export class Coin{
     @PrimaryGeneratedColumn('uuid')
     id : string;
     @Column()
     name : string;
     @Column({type: 'varchar',length : 3})
     symbol : string;
-    @ManyToOne(type => ExchangeEntity,exchangeEntity => exchangeEntity.coins)
-    exchange : ExchangeEntity;
-    @Column()
+    @ManyToOne(type => Exchange,exchange => exchange.coins)
+    exchange : Exchange;
+    @Column('decimal',{precision : 11,scale: 2})
     priceClp : number;
-    @Column()
+    @Column('decimal',{precision: 11,scale : 2})
     priceUsd : number;
     @Column('date')
     lastUpdate : Date;
 }
+
