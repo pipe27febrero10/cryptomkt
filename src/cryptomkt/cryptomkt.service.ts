@@ -14,6 +14,8 @@ import { toCoinDto } from '@coin/mapper';
 import { CoinDto } from '@coin/dto/coin.dto';
 import { LocalindicatorService } from 'localindicator/localindicator.service';
 import { ValueDto } from 'localindicator/dto/value.dto';
+import { PoloniexService } from 'poloniex/poloniex.service';
+import { MarketPoloniexDto } from 'poloniex/dto/market-poloniex.dto';
 const { cryptos } = require('../helpers/crypto.const')
 
 
@@ -23,7 +25,8 @@ export class CryptomktService {
     constructor(private readonly httpService: HttpService,
                 private readonly coinService : CoinService,
                 private readonly exchangeService : ExchangeService,
-                private readonly localIndicatorService : LocalindicatorService){}
+                private readonly localIndicatorService : LocalindicatorService,
+                private readonly poloniexService : PoloniexService){}
 
     async getAllMarkets() : Promise<ResponseCryptoMkt>
     {
@@ -120,8 +123,7 @@ export class CryptomktService {
         })
 
         let coins : Array<CreateCoinDto> = []
-        const usdValueDto : ValueDto = await this.localIndicatorService.getUsdValueInClp()
-        const usdValueInClp : number = usdValueDto.valor
+        const usdValueInClp : number = await this.localIndicatorService.getUsdCurrentValueInClp()
         for(let name of names)
         {
            let responseMarketPrice : ResponseCryptoMkt = await this.getMarketPrice(name+'CLP')
@@ -147,6 +149,27 @@ export class CryptomktService {
     {
         let exchange = await this.exchangeService.create(createExchangeDto)
         return toExchangeDto(exchange)
+    }
+
+    // compare real value (using poloniex btc- usd , eth -usd etc) with usd value in cryptomkt
+    async variationWithRealValue(symbol : string) : Promise<number>
+    {
+        let coin : Coin = await this.coinService.getBySymbol(symbol)
+
+        if(!coin)
+        {
+            throw(new HttpException('coin not found in database',HttpStatus.NOT_FOUND))
+        }
+
+        let marketPoloniexDto : MarketPoloniexDto = await this.poloniexService.getMarket(symbol)
+       
+        if(!marketPoloniexDto)
+        {
+            throw(new HttpException('market not found in poloniex exchange',HttpStatus.NOT_FOUND))
+        }
+
+        let variation : number = (coin.priceUsd/marketPoloniexDto.last)
+        return variation
     }
     
 }

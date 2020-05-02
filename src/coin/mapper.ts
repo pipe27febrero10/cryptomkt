@@ -5,7 +5,7 @@ import { ExchangeDto } from "@exchange/dto/exchange.dto"
 
 export const toCoinDto = (coin : Coin) : CoinDto => {
     const {id,name,symbol,exchange,priceClp,priceUsd,lastUpdate} = coin
-    const exchangeDto : ExchangeDto = toExchangeDto(exchange)
+    const exchangeDto : ExchangeDto = exchange ? toExchangeDto(exchange) : undefined
     return {
         id: id,
         name : name,

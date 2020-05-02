@@ -15,7 +15,7 @@ export class Coin{
     priceClp : number;
     @Column('decimal',{precision: 11,scale : 2})
     priceUsd : number;
-    @Column('date')
+    @Column({type: 'datetime'})
     lastUpdate : Date;
 }
 

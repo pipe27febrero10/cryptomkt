@@ -39,6 +39,24 @@ export class CoinService {
         return coin
     }
 
+
+    async save(coin : Coin) : Promise<Coin>
+    {
+        let coinSaved : Coin = await this.coinRepository.save(coin)
+        return coinSaved
+    }
+
+    async saveMany(coins : Array<Coin>) : Promise<Array<Coin>>
+    {
+        let coinsSaved : Array<Coin> = []
+        for(let coin of coins)
+        {
+           let coinSaved = await this.coinRepository.save(coin)
+           coinsSaved = [...coinsSaved,coinSaved]
+        }
+        return coinsSaved
+    }
+
     async createMany(createCoinsDto : Array<CreateCoinDto>,idExchange : string) : Promise<Array<Coin>>
     {
         let coins : Array<Coin> = []
@@ -56,7 +74,13 @@ export class CoinService {
 
     async getAll() : Promise<Array<Coin>>
     {
-        let coins : Array<Coin> = await this.coinRepository.find()
+        let coins : Array<Coin> = await this.coinRepository.find({relations : ['exchange']})
         return coins
+    }
+
+    async getBySymbol(symbol : string) : Promise<Coin>
+    {
+        let coin : Coin = await this.coinRepository.findOne({where : {symbol}, relations : ['exchange']})
+        return coin
     }
 }

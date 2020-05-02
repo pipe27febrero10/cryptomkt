@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, HttpException, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpException, UseGuards, HttpCode } from '@nestjs/common';
 import { UserDto } from './dto/user.dto';
 import { UserCreateDto } from './dto/user-create.dto'
 import { UserService } from './user.service';
@@ -21,6 +21,7 @@ export class UserController {
     }
 
     @Post()
+    @HttpCode(201)
     async create(@Body() payload : UserCreateDto) : Promise<UserDto>
     {
         const user : User = await this.userService.create(payload)

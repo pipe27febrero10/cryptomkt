@@ -14,12 +14,22 @@ export class LocalindicatorService {
         return data
     }
 
+    // dolar observado
     async getUsdValueInClp() : Promise<ValueDto>
     {
         let result : any = null
         result = await this.getAll()
         const usdValueDto : ValueDto = result.dolar
         return usdValueDto
+    }
+
+    //current dolar
+    async getUsdCurrentValueInClp() : Promise<any>
+    {
+        let result = await this.httpService.get(apiUri+'/dolar').toPromise()
+        let dolarHistory = result.data
+        let lastValue : number = Number(dolarHistory.serie[0].valor)
+        return lastValue
     }
 
     async getUFValueInCLP() : Promise<ValueDto>

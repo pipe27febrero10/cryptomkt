@@ -14,7 +14,8 @@
       "@coin/*" : ["coin/*"],
       "@exchange/*" : ["exchange/*"],
       "@cryptomkt/*" : ["cryptomkt/*"],
-      "@user/*" : ["user/*"]
+      "@user/*" : ["user/*"],
+      "@poloniex/*" : ["poloniex/*"]
     }
   },
   "exclude": ["node_modules", "dist"]
