@@ -7,14 +7,19 @@ import { toCoinDto } from '@coin/mapper';
 import { Coin } from '@coin/entities/coin.entity';
 import { ResponseCoin } from '@cryptomkt/interfaces/response-coin.interface';
 import { LocalindicatorService } from 'localindicator/localindicator.service';
-import { ValueDto } from 'localindicator/dto/value.dto';
-import { CoinDto } from '@coin/dto/coin.dto';
+import { PoloniexService } from '@poloniex/poloniex.service';
+import { MarketPoloniexDto } from '@poloniex/dto/market-poloniex.dto';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CoinHistory } from 'statistics/entity/coin-history.entity';
 
 @Injectable()
 export class TasksService {
   constructor(private readonly cryptoMktService : CryptomktService,
               private readonly coinService : CoinService,
-              private readonly localIndicatorService : LocalindicatorService){}
+              private readonly localIndicatorService : LocalindicatorService,
+              private readonly poloniexService : PoloniexService,
+              @InjectRepository(CoinHistory) private readonly coinHistoryRepo : Repository<CoinHistory>){}
   private readonly logger = new Logger(TasksService.name);
 
   @Cron("*/10 * * * * *")
@@ -43,6 +48,33 @@ export class TasksService {
 
       let coinsSaved : Array<Coin> = await this.coinService.saveMany(coins)
      // let coinsDto : Array<CoinDto> = coinsSaved.map(coin => toCoinDto(coin))
-
   }
+
+  @Cron("*/20 * * * * *")
+  async coinHistory()
+  {
+    let coins : Array<Coin> = await this.coinService.getAll()
+    for(let coin of coins)
+    {
+      let now = Date()
+      let symbol = coin.symbol
+      
+      let marketPoloniexDto : MarketPoloniexDto = await this.poloniexService.getMarket(symbol)
+      if(marketPoloniexDto)
+      {
+        let variation = coin.priceUsd/marketPoloniexDto.last
+        let coinHistory : CoinHistory = this.coinHistoryRepo.create({
+          variation : variation,
+          coin : coin,
+          timestamp : now
+        })
+        let coinHistorySaved = await this.coinHistoryRepo.save(coinHistory)
+        console.log(coinHistorySaved)
+      }
+      
+      
+    }
+  }
+  
+
 }

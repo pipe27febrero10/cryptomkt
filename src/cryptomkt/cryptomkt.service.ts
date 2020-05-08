@@ -139,6 +139,10 @@ export class CryptomktService {
            }]
         }
         let exchange : Exchange = await this.exchangeService.findByName(exchangeName)
+        if(!exchange)
+        {
+            throw(new HttpException('exchange cryptmkt not found',HttpStatus.NOT_FOUND))
+        }
         let idExchange : string = exchange.id
         let coinsCreated  : Array<Coin>  = await this.coinService.createMany(coins,idExchange)
         let coinsDto : Array<CoinDto> = coinsCreated.map(coinCreated => toCoinDto(coinCreated))

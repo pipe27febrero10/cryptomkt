@@ -6,9 +6,9 @@ import { ExchangeService } from '@exchange/exchange.service';
 import { toExchangeDto } from '@exchange/mapper';
 import { ExchangeDto } from '@exchange/dto/exchange.dto';
 import { exchangeWebsite,exchangeName } from './constants';
-const { cryptos } = require('../helpers/crypto.const')
+import { ApiTags } from '@nestjs/swagger';
 
-
+@ApiTags('cryptomkt')
 @Controller('cryptomkt')
 export class CryptomktController {
     constructor(private readonly cryptomktService : CryptomktService,

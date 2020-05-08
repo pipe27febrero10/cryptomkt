@@ -11,10 +11,11 @@ import { LocalindicatorModule } from './localindicator/localindicator.module';
 import { ScheduleModule } from '@nestjs/schedule'
 import { TasksModule } from './tasks/tasks.module';
 import { PoloniexModule } from './poloniex/poloniex.module';
+import { StatisticsModule } from './statistics/statistics.module';
 
 
 @Module({
-  imports: [ScheduleModule.forRoot(),DatabaseModule, UserModule, AuthModule, CryptomktModule, CoinModule, ExchangeModule, LocalindicatorModule, TasksModule, PoloniexModule],
+  imports: [ScheduleModule.forRoot(),DatabaseModule, UserModule, AuthModule, CryptomktModule, CoinModule, ExchangeModule, LocalindicatorModule, TasksModule, PoloniexModule, StatisticsModule],
   controllers: [AppController],
   providers: [AppService],
 })

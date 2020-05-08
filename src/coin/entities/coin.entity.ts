@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, OneToMany } from "typeorm";
 import { Exchange } from 'exchange/entities/exchange.entity'
+import { CoinHistory } from "statistics/entity/coin-history.entity";
 
 @Entity()
 export class Coin{
@@ -17,5 +18,8 @@ export class Coin{
     priceUsd : number;
     @Column({type: 'datetime'})
     lastUpdate : Date;
+    @OneToMany(type => CoinHistory,coinHistory => coinHistory.coin)
+    coinsHistory : Array<CoinHistory>
+
 }
 

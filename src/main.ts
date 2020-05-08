@@ -5,10 +5,14 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const options = new DocumentBuilder()
-    .setTitle('Project Udec')
-    .setDescription('Project Udec API description')
+    .setTitle('Exchanges Crypto')
+    .setDescription('Exchanges Crypto stock values')
     .setVersion('1.0.0')
     .addTag('users')
+    .addTag('auth')
+    .addTag('cryptomkt')
+    .addTag('coins')
+    .addTag('exchanges')
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);

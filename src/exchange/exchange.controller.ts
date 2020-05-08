@@ -4,7 +4,9 @@ import { ExchangeService } from '@exchange/exchange.service'
 import { Exchange } from '@exchange/entities/exchange.entity'
 import { ExchangeDto } from './dto/exchange.dto';
 import { toExchangeDto } from '@exchange/mapper'
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('exchanges')
 @Controller('exchanges')
 export class ExchangeController {
     constructor(private exchangeService : ExchangeService) {}
