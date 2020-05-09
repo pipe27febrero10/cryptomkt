@@ -43,11 +43,15 @@ export class TasksService {
             coin.priceClp = data.last_price
             coin.priceUsd = coin.priceClp/priceUsdInClp
             coin.lastUpdate = data.timestamp
+            coin.bidPriceClp = data.bid
+            coin.askPriceClp = data.ask
+            coin.bidPriceUsd = coin.bidPriceClp/priceUsdInClp
+            coin.askPriceUsd = coin.askPriceClp/priceUsdInClp
+            coin.volume = data.volume
         }
       })
 
       let coinsSaved : Array<Coin> = await this.coinService.saveMany(coins)
-     // let coinsDto : Array<CoinDto> = coinsSaved.map(coin => toCoinDto(coin))
   }
 
   @Cron("*/20 * * * * *")
@@ -62,14 +66,18 @@ export class TasksService {
       let marketPoloniexDto : MarketPoloniexDto = await this.poloniexService.getMarket(symbol)
       if(marketPoloniexDto)
       {
-        let variation = coin.priceUsd/marketPoloniexDto.last
+        let lastVariation = coin.priceUsd/marketPoloniexDto.last
+        let bidVariation = coin.bidPriceUsd/marketPoloniexDto.last
+        let askVariation = coin.askPriceUsd/marketPoloniexDto.last
+
         let coinHistory : CoinHistory = this.coinHistoryRepo.create({
-          variation : variation,
+          lastVariation : lastVariation,
+          bidVariation : bidVariation,
+          askVariation : askVariation,
           coin : coin,
           timestamp : now
         })
         let coinHistorySaved = await this.coinHistoryRepo.save(coinHistory)
-        console.log(coinHistorySaved)
       }
       
       

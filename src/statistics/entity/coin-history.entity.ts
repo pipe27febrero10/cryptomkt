@@ -7,7 +7,11 @@ export class CoinHistory{
     @PrimaryGeneratedColumn("uuid")
     id : string;
     @Column({type : "float"})
-    variation: number;
+    lastVariation: number;
+    @Column({type: "float" })
+    bidVariation : number;
+    @Column({type: "float"})
+    askVariation : number;
     @Column({type: "datetime"})
     timestamp : Date;
     @ManyToOne(type => Coin,coin => coin.coinsHistory)

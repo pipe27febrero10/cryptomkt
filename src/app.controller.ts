@@ -13,6 +13,7 @@ import { PoloniexService } from 'poloniex/poloniex.service';
 import { CoinDto } from '@coin/dto/coin.dto';
 import { CryptomktService } from '@cryptomkt/cryptomkt.service';
 import { MarketPoloniexDto } from 'poloniex/dto/market-poloniex.dto';
+import { ResponseCryptoMkt } from '@cryptomkt/interfaces/response-crypto-mkt.interface';
 
 
 @Controller()
@@ -29,39 +30,20 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('test')
-  async test(@Query('symbol') symbol : string)
-  {
-    return await this.poloniexService.getMarket(symbol)
-  }
-
-  @Get('test1')
-  async test1() : Promise<CoinDto>
-  {
-    const coin : Coin = await this.coinService.getBySymbol('BTC')
-    return toCoinDto(coin)
-  }
-
-  @Get('test2')
-  async test2(@Query('symbol') symbol : string) : Promise<number>
+  
+  @Get('getVariationReal')
+  async getVariationReal(@Query('symbol') symbol : string) : Promise<number>
   {
     return await this.cryptoMktService.variationWithRealValue(symbol)
   }
-  @Get('test3')
-  async test3()
+
+  @Get('test')
+  async test() : Promise<any>
   {
-    let btc : Coin = await this.coinService.getBySymbol('ETH')
-    let btcPoloniexDto : MarketPoloniexDto = await this.poloniexService.getMarket('ETH')
-    return {
-      btcCryptoMkt : btc.priceUsd,
-      btcPoloniex :  btcPoloniexDto.last
-    }
+    let response : ResponseCryptoMkt = await this.cryptoMktService.getMarketPrice("BTCCLP")
+    return response
   }
-  @Get('test4')
-  async test4()
-  {
-    return await this.localindicatorService.getUsdCurrentValueInClp()
-  }
+
   
   
 

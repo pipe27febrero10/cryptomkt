@@ -9,7 +9,7 @@ import { CoinHistory } from 'statistics/entity/coin-history.entity';
     imports : [TypeOrmModule.forRoot({
         type: 'mysql',
         host: 'digitalaccount.store',
-        port: 8306,
+        port: 11000,
         username : 'root',
         password : 'pipiton27',
         database: 'test',

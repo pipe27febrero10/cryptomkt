@@ -16,6 +16,16 @@ export class Coin{
     priceClp : number;
     @Column('decimal',{precision: 11,scale : 2})
     priceUsd : number;
+    @Column('decimal',{precision: 11,scale : 2})
+    askPriceClp : number;
+    @Column('decimal',{precision: 11, scale: 2})
+    bidPriceClp : number;
+    @Column('decimal',{precision: 11,scale:2})
+    askPriceUsd : number;
+    @Column('decimal',{precision: 11,scale : 2})
+    bidPriceUsd : number;
+    @Column('decimal',{precision: 11,scale : 2})
+    volume : number;
     @Column({type: 'datetime'})
     lastUpdate : Date;
     @OneToMany(type => CoinHistory,coinHistory => coinHistory.coin)
