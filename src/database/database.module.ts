@@ -4,17 +4,28 @@ import { Exchange } from 'exchange/entities/exchange.entity';
 import { Coin } from 'coin/entities/coin.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoinHistory } from 'statistics/entity/coin-history.entity';
+import { ConfigurationModule } from 'configuration/configuration.module';
+import { ConfigurationService } from 'configuration/configuration.service';
 
 @Module({   
-    imports : [TypeOrmModule.forRoot({
-        type: 'mysql',
-        host: 'digitalaccount.store',
-        port: 11000,
-        username : 'root',
-        password : 'pipiton27',
-        database: 'test',
-        entities: [User,Exchange,Coin,CoinHistory],
-        synchronize: true,
-      })]
+    imports : [TypeOrmModule.forRootAsync({
+      imports : [ConfigurationModule],
+      useFactory : (configurationService : ConfigurationService) => {
+        return {
+          type: 'mysql',
+          host: configurationService.getHostMysql(),
+          port: configurationService.getPortMysql(),
+          username : configurationService.getUsernameMysql(),
+          password : configurationService.getPasswordMysql(),
+          database: configurationService.getDatabaseMysql(),
+          entities: [User,Exchange,Coin,CoinHistory],
+          synchronize: true,
+        }
+      },
+      inject : [ConfigurationService]
+    })]
 })
-export class DatabaseModule {}
+
+
+export class DatabaseModule {
+}
