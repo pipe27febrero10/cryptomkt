@@ -12,6 +12,8 @@ export class CoinHistory{
     bidVariation : number;
     @Column({type: "float"})
     askVariation : number;
+    @Column({type: 'float'})
+    dolarPriceClp : number
     @Column({type: "datetime"})
     timestamp : Date;
     @ManyToOne(type => Coin,coin => coin.coinsHistory)

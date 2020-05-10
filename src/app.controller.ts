@@ -36,15 +36,6 @@ export class AppController {
   {
     return await this.cryptoMktService.variationWithRealValue(symbol)
   }
-
-  @Get('test')
-  async test() : Promise<any>
-  {
-    let response : ResponseCryptoMkt = await this.cryptoMktService.getMarketPrice("BTCCLP")
-    return response
-  }
-
-  
   
 
 }
