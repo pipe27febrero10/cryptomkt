@@ -23,6 +23,11 @@ export class CoinService {
             symbol : createCoinDto.symbol,
             priceClp : createCoinDto.priceClp,
             priceUsd : createCoinDto.priceUsd,
+            askPriceClp : createCoinDto.askPriceClp,
+            bidPriceClp : createCoinDto.bidPriceClp,
+            askPriceUsd : createCoinDto.askPriceUsd,
+            bidPriceUsd : createCoinDto.bidPriceUsd,
+            volume : createCoinDto.volume,
             lastUpdate : createCoinDto.lastUpdate,
             exchange : exchange
         })

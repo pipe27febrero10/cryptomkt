@@ -58,6 +58,8 @@ export class TasksService {
   async coinHistory()
   {
     let coins : Array<Coin> = await this.coinService.getAll()
+    let dolarPriceClp : number = await this.localIndicatorService.getUsdCurrentValueInClp()
+
     for(let coin of coins)
     {
       let now = Date()
@@ -74,6 +76,7 @@ export class TasksService {
           lastVariation : lastVariation,
           bidVariation : bidVariation,
           askVariation : askVariation,
+          dolarPriceClp : dolarPriceClp,
           coin : coin,
           timestamp : now
         })

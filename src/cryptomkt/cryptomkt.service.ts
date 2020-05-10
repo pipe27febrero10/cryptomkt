@@ -16,6 +16,7 @@ import { LocalindicatorService } from 'localindicator/localindicator.service';
 import { ValueDto } from 'localindicator/dto/value.dto';
 import { PoloniexService } from 'poloniex/poloniex.service';
 import { MarketPoloniexDto } from 'poloniex/dto/market-poloniex.dto';
+import { response } from 'express';
 const { cryptos } = require('../helpers/crypto.const')
 
 
@@ -97,6 +98,7 @@ export class CryptomktService {
     {
         let regexs = Object.keys(cryptos).map(crypto => new RegExp('^'+crypto+'$'))
         let keysCryptos = Object.keys(cryptos)
+
         let names : Array<string> = []
 
         regexs.forEach((regex,i) => {
@@ -128,17 +130,30 @@ export class CryptomktService {
         {
            let responseMarketPrice : ResponseCryptoMkt = await this.getMarketPrice(name+'CLP')
            let lastPriceClp : number = Number(responseMarketPrice.data[0].last_price)
-           let lastPriceUsd : number = lastPriceClp/usdValueInClp // change this to variable price usd
+           let askPriceClp : number = Number(responseMarketPrice.data[0].ask)
+           let bidPriceClp : number = Number(responseMarketPrice.data[0].bid)
+           let volume : number = Number(responseMarketPrice.data[0].volume)
+           let lastPriceUsd : number = lastPriceClp/usdValueInClp 
+           let askPriceUsd : number = askPriceClp/usdValueInClp
+           let bidPriceUsd : number = bidPriceClp/usdValueInClp
+
            let lastDate : Date = responseMarketPrice.data[0].timestamp
            coins = [...coins,{
                name : cryp[name],
                symbol : name,
                priceClp : lastPriceClp,
                priceUsd : lastPriceUsd,
-               lastUpdate : lastDate
+               lastUpdate : lastDate,
+               askPriceClp : askPriceClp,
+               bidPriceClp : bidPriceClp,
+               askPriceUsd : askPriceUsd,
+               bidPriceUsd : bidPriceUsd,
+               volume : volume
            }]
         }
+
         let exchange : Exchange = await this.exchangeService.findByName(exchangeName)
+       
         if(!exchange)
         {
             throw(new HttpException('exchange cryptmkt not found',HttpStatus.NOT_FOUND))
