@@ -14,9 +14,10 @@ import { PoloniexModule } from './poloniex/poloniex.module';
 import { StatisticsModule } from './statistics/statistics.module';
 import { ConfigModule } from '@nestjs/config';
 import { ConfigurationModule } from './configuration/configuration.module';
+import { BudaModule } from './buda/buda.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({isGlobal : true}),ScheduleModule.forRoot(),DatabaseModule, UserModule, AuthModule, CryptomktModule, CoinModule, ExchangeModule, LocalindicatorModule, TasksModule, PoloniexModule, StatisticsModule, ConfigurationModule],
+  imports: [ConfigModule.forRoot({isGlobal : true}),ScheduleModule.forRoot(),DatabaseModule, UserModule, AuthModule, CryptomktModule, CoinModule, ExchangeModule, LocalindicatorModule, TasksModule, PoloniexModule, StatisticsModule, ConfigurationModule, BudaModule],
   controllers: [AppController],
   providers: [AppService],
 })

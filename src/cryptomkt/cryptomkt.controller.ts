@@ -7,6 +7,7 @@ import { toExchangeDto } from '@exchange/mapper';
 import { ExchangeDto } from '@exchange/dto/exchange.dto';
 import { exchangeWebsite,exchangeName } from './constants';
 import { ApiTags } from '@nestjs/swagger';
+import { CoinDto } from '@coin/dto/coin.dto';
 
 @ApiTags('cryptomkt')
 @Controller('cryptomkt')
@@ -21,14 +22,14 @@ export class CryptomktController {
     }
 
     @Get('markets/:market')
-    async getMarketPrice(@Param('market') market : string)
+    async getMarketPrice(@Param('market') market : string) : Promise<ResponseCryptoMkt>
     {
         return await this.cryptomktService.getMarketPrice(market)
     }
 
     //set coins available to exchange manually
     @Get('/setup_cryptomkt_coins')
-    async setCoins()
+    async setCoins() : Promise<CoinDto[]>
     {
         let responseGetAllMarkets : ResponseCryptoMkt = await this.cryptomktService.getAllMarkets()
         let markets : Array<string> = responseGetAllMarkets.data

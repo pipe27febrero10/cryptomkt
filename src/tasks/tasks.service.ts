@@ -12,6 +12,13 @@ import { MarketPoloniexDto } from '@poloniex/dto/market-poloniex.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CoinHistory } from 'statistics/entity/coin-history.entity';
+import { ExchangeService } from '@exchange/exchange.service';
+import * as cryptomktConstants from '../cryptomkt/constants'
+import * as budaConstants from '../buda/constants'
+import { Exchange } from '@exchange/entities/exchange.entity';
+import { BudaService } from '@buda/buda.service';
+import { ResponseBudaTicker } from '@buda/interfaces/response-buda-ticker.interface';
+import { ValueDto } from 'localindicator/dto/value.dto';
 
 @Injectable()
 export class TasksService {
@@ -19,13 +26,25 @@ export class TasksService {
               private readonly coinService : CoinService,
               private readonly localIndicatorService : LocalindicatorService,
               private readonly poloniexService : PoloniexService,
+              private readonly exchangeService : ExchangeService,
+              private readonly budaService : BudaService,
               @InjectRepository(CoinHistory) private readonly coinHistoryRepo : Repository<CoinHistory>){}
   private readonly logger = new Logger(TasksService.name);
 
   @Cron("*/10 * * * * *")
   async updateCoinsCryptoMkt() {
-      const coins : Array<Coin> = await this.coinService.getAll()
-      const symbols = coins.map(coin => coin.symbol)
+      let coins : Array<Coin> = await this.coinService.getAll()
+      let cryptomktExchange : Exchange = await this.exchangeService.findByName(cryptomktConstants.exchangeName)
+
+      coins = coins.reduce((accumulator,coin) => {
+        if(coin.exchange.id === cryptomktExchange.id)
+        {
+          accumulator = [...accumulator,coin]
+        }
+        return accumulator
+      },[])
+
+      const symbols : Array<string> = coins.map(coin => coin.symbol)
       
       let promises = symbols.map(symbol => this.cryptoMktService.getMarketPrice(symbol+'CLP')) // get markets price in clp
       let responses : Array<ResponseCryptoMkt> = null
@@ -54,7 +73,49 @@ export class TasksService {
       let coinsSaved : Array<Coin> = await this.coinService.saveMany(coins)
   }
 
-  @Cron("*/20 * * * * *")
+  @Cron("*/10 * * * * *")
+  async updateCoinsBuda(){
+    let coins : Array<Coin> = await this.coinService.getAll()
+    let budaExchange : Exchange = await this.exchangeService.findByName(budaConstants.exchangeName)
+    coins = coins.reduce((accumulator,coin) => {
+      if(coin.exchange.id === budaExchange.id)
+      {
+        accumulator = [...accumulator,coin]
+      }
+      return accumulator
+    },[])
+    
+    const symbols : Array<string> = coins.map(coin => coin.symbol)
+    for(let symbol of symbols)
+    {
+      let responseBudaTicker : ResponseBudaTicker= await this.budaService.getMarketTicker(symbol)
+      let currentDate : Date = new Date()
+      let usdValueDto : ValueDto = await this.localIndicatorService.getUsdValueInClp()
+      let usdValueInClp : number = usdValueDto.valor
+      let priceClp : number = Number(responseBudaTicker.ticker.last_price[0])
+      let priceUsd : number = priceClp/usdValueInClp
+      let askPriceClp : number = Number(responseBudaTicker.ticker.min_ask[0])
+      let bidPriceClp : number = Number(responseBudaTicker.ticker.max_bid[0])
+      let askPriceUsd : number = askPriceClp/usdValueInClp
+      let bidPriceusd : number = bidPriceClp/usdValueInClp
+      let volume : number = Number(responseBudaTicker.ticker.volume[0])
+      // coin to update information
+      let coin  = coins.find(coin => coin.symbol === symbol)
+      coin.lastUpdate = currentDate
+      coin.bidPriceClp = bidPriceClp
+      coin.askPriceClp = askPriceClp
+      coin.askPriceUsd = askPriceUsd
+      coin.bidPriceUsd = bidPriceusd
+      coin.priceClp = priceClp
+      coin.priceUsd = priceUsd
+      coin.volume = volume
+
+      await this.coinService.save(coin)
+            
+    }
+  }
+    
+  @Cron("*/10 * * * * *")
   async coinHistory()
   {
     let coins : Array<Coin> = await this.coinService.getAll()
@@ -64,8 +125,9 @@ export class TasksService {
     {
       let now = Date()
       let symbol = coin.symbol
-      
+     
       let marketPoloniexDto : MarketPoloniexDto = await this.poloniexService.getMarket(symbol)
+      
       if(marketPoloniexDto)
       {
         let lastVariation = coin.priceUsd/marketPoloniexDto.last
@@ -81,11 +143,10 @@ export class TasksService {
           timestamp : now
         })
         let coinHistorySaved = await this.coinHistoryRepo.save(coinHistory)
-      }
-      
-      
+      }     
     }
   }
-  
+
+
 
 }

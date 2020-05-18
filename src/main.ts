@@ -13,6 +13,7 @@ async function bootstrap() {
     .addTag('cryptomkt')
     .addTag('coins')
     .addTag('exchanges')
+    .addTag('buda')
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);

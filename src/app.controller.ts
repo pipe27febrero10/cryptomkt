@@ -14,6 +14,7 @@ import { CoinDto } from '@coin/dto/coin.dto';
 import { CryptomktService } from '@cryptomkt/cryptomkt.service';
 import { MarketPoloniexDto } from 'poloniex/dto/market-poloniex.dto';
 import { ResponseCryptoMkt } from '@cryptomkt/interfaces/response-crypto-mkt.interface';
+import { BudaService } from './buda/buda.service';
 
 
 @Controller()
@@ -23,7 +24,8 @@ export class AppController {
               private readonly coinService : CoinService,
               private readonly exchangeService : ExchangeService,
               private readonly poloniexService : PoloniexService,
-              private readonly cryptoMktService : CryptomktService) {}
+              private readonly cryptoMktService : CryptomktService,
+              private readonly budaService : BudaService) {}
 
   @Get()
   getHello(): string {
@@ -36,6 +38,5 @@ export class AppController {
   {
     return await this.cryptoMktService.variationWithRealValue(symbol)
   }
-  
 
 }

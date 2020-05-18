@@ -15,7 +15,8 @@
       "@exchange/*" : ["exchange/*"],
       "@cryptomkt/*" : ["cryptomkt/*"],
       "@user/*" : ["user/*"],
-      "@poloniex/*" : ["poloniex/*"]
+      "@poloniex/*" : ["poloniex/*"],
+      "@buda/*" : ["buda/*"]
     }
   },
   "exclude": ["node_modules", "dist"]
