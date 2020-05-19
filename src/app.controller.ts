@@ -39,4 +39,9 @@ export class AppController {
     return await this.cryptoMktService.variationWithRealValue(symbol)
   }
 
+  @Get("testfinal")
+  async testFinal(){
+    return await this.budaService.getAllMarkets()
+  }
+  
 }

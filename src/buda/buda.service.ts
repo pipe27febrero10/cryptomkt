@@ -1,6 +1,6 @@
 import { Injectable, HttpService, HttpException } from '@nestjs/common';
 import { ResponseBudaMarkets } from './interfaces/response-buda-markets.interface';
-import { uriApiBuda } from './constants'
+import { uriApiBuda,manualResponseBudaMarkets } from './constants'
 import { ResponseBudaMarket } from './interfaces/response-buda-market.interface';
 import { CoinDto } from '@coin/dto/coin.dto';
 import { ResponseBudaTicker } from './interfaces/response-buda-ticker.interface';
@@ -10,6 +10,7 @@ import { CreateCoinDto } from '@coin/dto/create-coin.dto';
 import { cryptos } from '../helpers/crypto.const';
 import { CoinService } from '@coin/coin.service';
 import { Coin } from '@coin/entities/coin.entity';
+
 
 @Injectable()
 export class BudaService {
@@ -27,11 +28,13 @@ export class BudaService {
     {
         let response : any 
         try{
-            response = await this.httpService.get(uriApiBuda+'markets',{headers : this.headers}).toPromise()
+            response = await this.httpService.get(uriApiBuda+'marskets',{headers : this.headers}).toPromise()
         }
         catch(err)
         {
-            console.log(err.response.status)
+            console.log("there was an error by trying to get markets from buda")
+            console.log(err)
+            return manualResponseBudaMarkets
         }
         const markets : ResponseBudaMarkets = {
             markets : response.data.markets
