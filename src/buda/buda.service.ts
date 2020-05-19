@@ -28,7 +28,7 @@ export class BudaService {
     {
         let response : any 
         try{
-            response = await this.httpService.get(uriApiBuda+'marskets',{headers : this.headers}).toPromise()
+            response = await this.httpService.get(uriApiBuda+'markets',{headers : this.headers}).toPromise()
         }
         catch(err)
         {
