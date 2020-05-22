@@ -25,7 +25,7 @@ export class LocalindicatorService {
     }
 
     //current dolar observado
-    async getUsdCurrentValueInClp() : Promise<any>
+    async getUsdCurrentValueInClp() : Promise<number>
     {
         let valueDto : ValueDto = await this.getCurrentUsdValue()
         let lastValue : number = valueDto.valor

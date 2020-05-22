@@ -60,8 +60,7 @@ export class BudaService {
             let marketTicker : ResponseBudaTicker = await this.getMarketTicker(symbol)
            
             let currentDate : Date = new Date()
-            let usdValueDto : ValueDto = await this.localIndicatorService.getUsdValueInClp()
-            let usdValueInClp : number = usdValueDto.valor
+            let usdValueInClp : number = await this.localIndicatorService.getUsdCurrentValueInClp()
             let priceClp : number = Number(marketTicker.ticker.last_price[0])
             let priceUsd : number = priceClp/usdValueInClp
             let askPriceClp : number = Number(marketTicker.ticker.min_ask[0])
