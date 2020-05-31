@@ -15,6 +15,8 @@ import { CryptomktService } from '@cryptomkt/cryptomkt.service';
 import { MarketPoloniexDto } from 'poloniex/dto/market-poloniex.dto';
 import { ResponseCryptoMkt } from '@cryptomkt/interfaces/response-crypto-mkt.interface';
 import { BudaService } from './buda/buda.service';
+import { Observable } from 'rxjs';
+import { OpenExchangeResponse } from 'localindicator/interfaces/open-exchange-response.interface';
 
 
 @Controller()
@@ -43,5 +45,16 @@ export class AppController {
   async testFinal(){
     return await this.budaService.getAllMarkets()
   }
+
+  @Get("test_observable")
+  async testObservable()
+  {
+    let value : number =await  this.localindicatorService.getUsdCurrentValueInClp2()
+    
+    return value
+        
+  }
+
+        
   
 }
