@@ -8,8 +8,11 @@ import { LocalindicatorService } from 'localindicator/localindicator.service';
 import { ValueDto } from 'localindicator/dto/value.dto';
 import { CreateCoinDto } from '@coin/dto/create-coin.dto';
 import { cryptos } from '../helpers/crypto.const';
-import { CoinService } from '@coin/coin.service';
 import { Coin } from '@coin/entities/coin.entity';
+import { CreateCoinCryptoDto } from '@coin/dto/create-coin-crypto.dto';
+import { CoinCryptoService } from '@coin/coin-crypto.service';
+import { CoinCrypto } from '@coin/entities/coin-crypto.entity';
+import * as moment from 'moment'
 
 
 @Injectable()
@@ -17,7 +20,7 @@ export class BudaService {
     headers : Object;
     constructor(private readonly httpService : HttpService,
                 private readonly localIndicatorService : LocalindicatorService,
-                private readonly coinService : CoinService) {
+                private readonly coinService : CoinCryptoService) {
         this.headers = {
             Accept : '*/*'
         }
@@ -52,14 +55,14 @@ export class BudaService {
         return marketResponse
     }
 
-    async setupCoins(symbols : Array<string>,idExchange : string) : Promise<Coin[]>
+    async setupCoins(symbols : Array<string>,idExchange : string) : Promise<CoinCrypto[]>
     {
-        let createCoinsDto : Array<CreateCoinDto> = []
+        let createCoinsDto : Array<CreateCoinCryptoDto> = []
         for(let symbol of symbols)
         {
             let marketTicker : ResponseBudaTicker = await this.getMarketTicker(symbol)
            
-            let currentDate : Date = new Date()
+            let currentDate : string = moment().utc().format()
             let usdValueInClp : number = await this.localIndicatorService.getUsdCurrentValueInClp()
             let priceClp : number = Number(marketTicker.ticker.last_price[0])
             let priceUsd : number = priceClp/usdValueInClp
@@ -69,7 +72,7 @@ export class BudaService {
             let bidPriceusd : number = bidPriceClp/usdValueInClp
             let volume : number = Number(marketTicker.ticker.volume[0])
             
-            let createCoinDto : CreateCoinDto = {
+            let createCoinDto : CreateCoinCryptoDto = {
                 name : cryptos[marketTicker.ticker.market_id.substring(0,3)],
                 symbol : marketTicker.ticker.market_id.substring(0,3),
                 priceClp : priceClp,
@@ -84,14 +87,23 @@ export class BudaService {
             createCoinsDto = [...createCoinsDto,createCoinDto]
         }
 
-        let coins : Array<Coin> =  []
+        let coins : Array<CoinCrypto> =  []
         coins = await this.coinService.createMany(createCoinsDto,idExchange)    
         return coins
     }
 
-    async getMarketTicker(market : string)
+    async getMarketTicker(market : string) : Promise<ResponseBudaTicker>
     {
-        const response = await this.httpService.get(uriApiBuda+'markets/'+market+'-CLP/ticker.json',{headers : this.headers}).toPromise()
+        let response : any = null 
+        try
+        {
+           response = await this.httpService.get(uriApiBuda+'markets/'+market+'-CLP/ticker.json',{headers : this.headers}).toPromise()
+        }
+        catch(err)
+        {
+            throw(new Error(err.toString()))
+        }
+        
         const responseBudaTicker : ResponseBudaTicker = {
             ticker : response.data.ticker
         }

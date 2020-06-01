@@ -3,34 +3,15 @@ import { Coin } from '@coin/entities/coin.entity'
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateCoinDto } from './dto/create-coin.dto';
-import { Exchange } from '@exchange/entities/exchange.entity';
 
 
 @Injectable()
 export class CoinService {
-    constructor(@InjectRepository(Coin) private coinRepository : Repository<Coin>,
-                @InjectRepository(Exchange) private exchangeRepository : Repository<Exchange>){}
+    constructor(@InjectRepository(Coin) private coinRepository : Repository<Coin>){}
 
-    async create(createCoinDto : CreateCoinDto,idExchange : string) : Promise<Coin>
+    async create(createCoinDto : CreateCoinDto) : Promise<Coin>
     {
-        let exchange : Exchange = await this.exchangeRepository.findOne(idExchange)
-        if(!exchange)
-        {
-            throw(new HttpException('Not found',HttpStatus.NOT_FOUND))
-        }
-        let coin : Coin = this.coinRepository.create({
-            name : createCoinDto.name,
-            symbol : createCoinDto.symbol,
-            priceClp : createCoinDto.priceClp,
-            priceUsd : createCoinDto.priceUsd,
-            askPriceClp : createCoinDto.askPriceClp,
-            bidPriceClp : createCoinDto.bidPriceClp,
-            askPriceUsd : createCoinDto.askPriceUsd,
-            bidPriceUsd : createCoinDto.bidPriceUsd,
-            volume : createCoinDto.volume,
-            lastUpdate : createCoinDto.lastUpdate,
-            exchange : exchange
-        })
+        let coin : Coin = this.coinRepository.create(createCoinDto)
 
         try
         {
@@ -38,9 +19,8 @@ export class CoinService {
         }   
         catch(err)
         {
-            throw(new HttpException(err.message,HttpStatus.INTERNAL_SERVER_ERROR))
+            throw(new Error(err.toString()))
         }
-
         return coin
     }
 
@@ -53,40 +33,41 @@ export class CoinService {
 
     async saveMany(coins : Array<Coin>) : Promise<Array<Coin>>
     {
-        let coinsSaved : Array<Coin> = []
-        for(let coin of coins)
+        let coinsSaved = null
+        try{
+            coinsSaved = await this.coinRepository.save(coins)
+        }
+        catch(err)
         {
-           let coinSaved = await this.coinRepository.save(coin)
-           coinsSaved = [...coinsSaved,coinSaved]
+            throw(new Error(err.toString()))
         }
         return coinsSaved
     }
 
-    async createMany(createCoinsDto : Array<CreateCoinDto>,idExchange : string) : Promise<Array<Coin>>
+    async createMany(createCoinsDto : Array<CreateCoinDto>) : Promise<Array<Coin>>
     {
         let coins : Array<Coin> = []
-        let promises : any =  createCoinsDto.map(createCoinDto => this.create(createCoinDto,idExchange))
+        let promises : any =  createCoinsDto.map(createCoinDto => this.create(createCoinDto))
         try
         {
            coins  = await Promise.all(promises)
         }
         catch(err)
         {    
-            console.log(err)
-            throw(new HttpException('Internal Server Error',HttpStatus.INTERNAL_SERVER_ERROR))
+            throw(new Error('Internal Server Error'))
         }
         return coins
     }
 
     async getAll() : Promise<Array<Coin>>
     {
-        let coins : Array<Coin> = await this.coinRepository.find({relations : ['exchange']})
+        let coins : Array<Coin> = await this.coinRepository.find()
         return coins
     }
 
     async getBySymbol(symbol : string) : Promise<Coin>
     {
-        let coin : Coin = await this.coinRepository.findOne({where : {symbol}, relations : ['exchange']})
+        let coin : Coin = await this.coinRepository.findOne({where : {symbol}})
         return coin
     }
 }

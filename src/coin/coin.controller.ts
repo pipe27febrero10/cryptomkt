@@ -11,10 +11,10 @@ import { ApiTags } from '@nestjs/swagger';
 export class CoinController {
     constructor(private coinService : CoinService) {}
 
-    @Post('/:id_exchange')
-    async create(@Body() createCoinDto : CreateCoinDto,@Param('id_exchange') idExchange : string) : Promise<CoinDto>
+    @Post('')
+    async create(@Body() createCoinDto : CreateCoinDto) : Promise<CoinDto>
     {
-        let coin : Coin =  await this.coinService.create(createCoinDto,idExchange)
+        let coin : Coin =  await this.coinService.create(createCoinDto)
         let coinDto : CoinDto = toCoinDto(coin)
         return coinDto
     }

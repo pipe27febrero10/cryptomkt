@@ -1,8 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, OneToMany } from "typeorm";
-import { Exchange } from 'exchange/entities/exchange.entity'
-import { CoinHistory } from "statistics/entity/coin-history.entity";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, OneToMany, TableInheritance } from "typeorm";
+
 
 @Entity()
+@TableInheritance({ column: { type: "varchar", name: "type" } })
 export class Coin{
     @PrimaryGeneratedColumn('uuid')
     id : string;
@@ -10,26 +10,11 @@ export class Coin{
     name : string;
     @Column({type: 'varchar',length : 3})
     symbol : string;
-    @ManyToOne(type => Exchange,exchange => exchange.coins)
-    exchange : Exchange;
     @Column('decimal',{precision : 11,scale: 2})
     priceClp : number;
     @Column('decimal',{precision: 11,scale : 2})
     priceUsd : number;
-    @Column('decimal',{precision: 11,scale : 2})
-    askPriceClp : number;
-    @Column('decimal',{precision: 11, scale: 2})
-    bidPriceClp : number;
-    @Column('decimal',{precision: 11,scale:2})
-    askPriceUsd : number;
-    @Column('decimal',{precision: 11,scale : 2})
-    bidPriceUsd : number;
-    @Column('decimal',{precision: 11,scale : 2})
-    volume : number;
-    @Column({type: 'datetime'})
-    lastUpdate : Date;
-    @OneToMany(type => CoinHistory,coinHistory => coinHistory.coin)
-    coinsHistory : Array<CoinHistory>
-
+    @Column({type: 'varchar'})
+    lastUpdate : string;
 }
 

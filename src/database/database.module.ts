@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoinHistory } from 'statistics/entity/coin-history.entity';
 import { ConfigurationModule } from 'configuration/configuration.module';
 import { ConfigurationService } from 'configuration/configuration.service';
+import { CoinCrypto } from '@coin/entities/coin-crypto.entity';
 
 @Module({   
     imports : [TypeOrmModule.forRootAsync({
@@ -18,8 +19,9 @@ import { ConfigurationService } from 'configuration/configuration.service';
           username : configurationService.getUsernameMysql(),
           password : configurationService.getPasswordMysql(),
           database: configurationService.getDatabaseMysql(),
-          entities: [User,Exchange,Coin,CoinHistory],
+          entities: [User,Exchange,Coin,CoinHistory,CoinCrypto],
           synchronize: true,
+          timezone : 'Z'
         }
       },
       inject : [ConfigurationService]

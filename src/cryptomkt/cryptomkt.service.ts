@@ -1,22 +1,22 @@
 import { Injectable, HttpService, HttpException, HttpCode, HttpStatus } from '@nestjs/common';
 import { ResponseCryptoMkt } from '@cryptomkt/interfaces/response-crypto-mkt.interface'
-import { CoinService } from '@coin/coin.service';
-import { CreateCoinDto } from '@coin/dto/create-coin.dto';
 import { ExchangeService } from '@exchange/exchange.service';
 import { CreateExchangeDto } from '@exchange/dto/create-exchange.dto';
-import { toUserDto } from '@user/mapper';
 import { toExchangeDto } from '@exchange/mapper';
 import { ExchangeDto } from '@exchange/dto/exchange.dto';
 import { exchangeName } from './constants'
 import { Exchange } from '@exchange/entities/exchange.entity';
-import { Coin } from '@coin/entities/coin.entity';
-import { toCoinDto } from '@coin/mapper';
-import { CoinDto } from '@coin/dto/coin.dto';
 import { LocalindicatorService } from 'localindicator/localindicator.service';
 import { ValueDto } from 'localindicator/dto/value.dto';
 import { PoloniexService } from 'poloniex/poloniex.service';
 import { MarketPoloniexDto } from 'poloniex/dto/market-poloniex.dto';
 import { response } from 'express';
+import { CoinCrypto } from '@coin/entities/coin-crypto.entity';
+import { CoinCryptoDto } from '@coin/dto/coin-crypto.dto';
+import { CreateCoinCryptoDto } from '@coin/dto/create-coin-crypto.dto';
+import { CoinCryptoService } from '@coin/coin-crypto.service';
+import { toCoinCrytoDto } from '@coin/mapper';
+import moment = require('moment');
 const { cryptos } = require('../helpers/crypto.const')
 
 
@@ -24,7 +24,7 @@ const { cryptos } = require('../helpers/crypto.const')
 @Injectable()
 export class CryptomktService {
     constructor(private readonly httpService: HttpService,
-                private readonly coinService : CoinService,
+                private readonly coinService : CoinCryptoService,
                 private readonly exchangeService : ExchangeService,
                 private readonly localIndicatorService : LocalindicatorService,
                 private readonly poloniexService : PoloniexService){}
@@ -94,7 +94,7 @@ export class CryptomktService {
         
     }
 
-    async setupCoins(symbols : Array<string>) : Promise<Array<CoinDto>>
+    async setupCoins(symbols : Array<string>) : Promise<Array<CoinCryptoDto>>
     {
         let regexs = Object.keys(cryptos).map(crypto => new RegExp('^'+crypto+'$'))
         let keysCryptos = Object.keys(cryptos)
@@ -124,7 +124,7 @@ export class CryptomktService {
                 cryp[name] = cryptos[name] 
         })
 
-        let coins : Array<CreateCoinDto> = []
+        let coinsCryptoDto : Array<CreateCoinCryptoDto> = []
         const usdValueInClp : number = await this.localIndicatorService.getUsdCurrentValueInClp()
         for(let name of names)
         {
@@ -137,8 +137,9 @@ export class CryptomktService {
            let askPriceUsd : number = askPriceClp/usdValueInClp
            let bidPriceUsd : number = bidPriceClp/usdValueInClp
 
-           let lastDate : Date = responseMarketPrice.data[0].timestamp
-           coins = [...coins,{
+           let lastDate : string = moment().utc().format()
+        
+           coinsCryptoDto = [...coinsCryptoDto,{
                name : cryp[name],
                symbol : name,
                priceClp : lastPriceClp,
@@ -159,8 +160,9 @@ export class CryptomktService {
             throw(new HttpException('exchange cryptmkt not found',HttpStatus.NOT_FOUND))
         }
         let idExchange : string = exchange.id
-        let coinsCreated  : Array<Coin>  = await this.coinService.createMany(coins,idExchange)
-        let coinsDto : Array<CoinDto> = coinsCreated.map(coinCreated => toCoinDto(coinCreated))
+        let coinsCreated  : Array<CoinCrypto>  = await this.coinService.createMany(coinsCryptoDto,idExchange)
+        console.log(coinsCreated)
+        let coinsDto : Array<CoinCryptoDto> = coinsCreated.map(coinCreated => toCoinCrytoDto(coinCreated))
         return coinsDto
     }
 
@@ -173,9 +175,9 @@ export class CryptomktService {
     // compare real value (using poloniex btc- usd , eth -usd etc) with usd value in cryptomkt
     async variationWithRealValue(symbol : string) : Promise<number>
     {
-        let coin : Coin = await this.coinService.getBySymbol(symbol)
+        let coinCrypto : CoinCrypto = await this.coinService.getBySymbol(symbol)
 
-        if(!coin)
+        if(!coinCrypto)
         {
             throw(new HttpException('coin not found in database',HttpStatus.NOT_FOUND))
         }
@@ -187,7 +189,7 @@ export class CryptomktService {
             throw(new HttpException('market not found in poloniex exchange',HttpStatus.NOT_FOUND))
         }
 
-        let variation : number = (coin.priceUsd/marketPoloniexDto.last)
+        let variation : number = (coinCrypto.priceUsd/marketPoloniexDto.last)
         return variation
     }
     

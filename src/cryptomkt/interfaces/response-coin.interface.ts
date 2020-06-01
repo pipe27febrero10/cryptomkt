@@ -1,5 +1,5 @@
 export interface ResponseCoin{
-    timestamp: Date;
+    timestamp: string;
     market: string;
     bid: number;
     ask: number;

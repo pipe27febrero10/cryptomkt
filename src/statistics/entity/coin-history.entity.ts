@@ -1,5 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, ManyToOne } from "typeorm";
-import { Coin } from "@coin/entities/coin.entity";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
+import { CoinCrypto } from "@coin/entities/coin-crypto.entity";
 
 
 @Entity()
@@ -14,8 +14,9 @@ export class CoinHistory{
     askVariation : number;
     @Column({type: 'float'})
     dolarPriceClp : number
-    @Column({type: "datetime"})
-    timestamp : Date;
-    @ManyToOne(type => Coin,coin => coin.coinsHistory)
-    coin : Coin;
+    @Column({type: "varchar"})
+    timestamp : string;
+    @ManyToOne(type => CoinCrypto,coinCrypto => coinCrypto.coinsHistory)
+    coin : CoinCrypto;
+
 }

@@ -10,15 +10,5 @@ export class CreateCoinDto{
     @ApiProperty()
     priceUsd : number;
     @ApiProperty()
-    askPriceClp : number;
-    @ApiProperty()
-    bidPriceClp : number;
-    @ApiProperty()
-    askPriceUsd : number;
-    @ApiProperty()
-    bidPriceUsd : number;
-    @ApiProperty()
-    volume : number;
-    @ApiProperty()
-    lastUpdate : Date; 
+    lastUpdate : string; 
 }

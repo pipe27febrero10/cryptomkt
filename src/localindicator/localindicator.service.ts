@@ -9,14 +9,19 @@ import { ValueDto } from './dto/value.dto';
 import { apiUri, bcentralDolar, openExchangesApiUri } from './constants';
 import * as cheerio from 'cheerio';
 import { LocalIndicatorException } from './exception/localindicator.exception';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { OpenExchangeResponse } from './interfaces/open-exchange-response.interface';
 import { OpenExchangeRates } from './interfaces/open-exchange-rates.interface';
+import { CoinService } from '@coin/coin.service';
+import * as moment from 'moment'
+import { Coin } from '@coin/entities/coin.entity';
+import { CreateCoinDto } from '@coin/dto/create-coin.dto';
+import { ConfigurationService } from 'configuration/configuration.service';
 
 @Injectable()
 export class LocalindicatorService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly httpService: HttpService,
+              private readonly coinService : CoinService,
+              private readonly configurationService : ConfigurationService) {}
   // get all indicators
   async getAll(): Promise<any> {
     let result: any = null;
@@ -43,29 +48,78 @@ export class LocalindicatorService {
   }
 
   //current dolar observado
-  async getUsdCurrentValueInClp(): Promise<number> {
-    let valueDto: ValueDto = await this.getCurrentUsdValue();
-    let lastValue: number = valueDto.valor;
-    return lastValue;
-  }
+  //async getUsdCurrentValueInClp(): Promise<number> {
+   // let valueDto: ValueDto = await this.getCurrentUsdValue();
+   // let lastValue: number = valueDto.valor;
+   // return lastValue;
+  //}
 
-  async getUsdCurrentValueInClp2(): Promise<number> {
+  async getUsdCurrentValueInClp(): Promise<number> {
+    let dateNow : moment.Moment = moment().utc()
+    let coin : Coin = await this.coinService.getBySymbol('USD')
+    let value : number
+    let openExchangeApiKey : string = this.configurationService.getOpenExchangeApiKey()
     const url =
       openExchangesApiUri +
-      '/latest.json?base=USD&symbols=CLP&app_id=ab06304a54fd42f6ab167d413b3fe0cf';
+      '/latest.json?base=USD&symbols=CLP&app_id='+openExchangeApiKey;
     let resultRequest = null;
-    try {
-      resultRequest = await this.httpService.get(url).toPromise();
-    } catch (err) {
-      if (err.response) {
-        throw new Error(err.response.data.toString());
-      } else {
-        throw new Error('http error');
+    
+    if(coin)
+    {
+      let limitTime : moment.Moment = moment(coin.lastUpdate).utc().add(50,"minutes")
+      if(moment(limitTime).isBefore(dateNow))
+      {
+        try {
+          resultRequest = await this.httpService.get(url).toPromise();
+        } catch (err) {
+          if (err.response) {
+            throw new Error(err.response.data.toString());
+          } else {
+            throw new Error('http error');
+          }
+        }
+      
+        coin.lastUpdate = dateNow.format()
+        await this.coinService.save(coin)
+        const openExchangeResponse: OpenExchangeResponse = resultRequest.data;
+        value = openExchangeResponse.rates['CLP'];
       }
+      else{
+        value = coin.priceClp 
+      }  
     }
-    const openExchangeResponse: OpenExchangeResponse = resultRequest.data;
-    const value: number = openExchangeResponse.rates['CLP'];
-    return value;
+    else{
+      try {
+        resultRequest = await this.httpService.get(url).toPromise();
+      } catch (err) {
+        if (err.response) {
+          throw new Error(err.response.data.toString());
+        } else {
+          throw new Error('http error');
+        }
+      }
+      const openExchangeResponse: OpenExchangeResponse = resultRequest.data;
+      value = openExchangeResponse.rates['CLP'];
+      const dolarCoin : CreateCoinDto = {
+        name : "Dólar",
+        symbol : "USD",
+        priceClp : value,
+        priceUsd : 1,
+        lastUpdate : moment().utc().format()
+      }
+
+      try
+      {
+        await this.coinService.create(dolarCoin)
+      }
+      catch(err)
+      {
+        throw(new Error("database error: "+err.toString()))
+      }
+      
+      
+    }
+    return value
   }
 
   async getUFValueInCLP(): Promise<ValueDto> {

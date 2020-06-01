@@ -45,16 +45,6 @@ export class AppController {
   async testFinal(){
     return await this.budaService.getAllMarkets()
   }
-
-  @Get("test_observable")
-  async testObservable()
-  {
-    let value : number =await  this.localindicatorService.getUsdCurrentValueInClp2()
-    
-    return value
-        
-  }
-
         
   
 }

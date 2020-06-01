@@ -1,5 +1,5 @@
-import { Coin } from 'coin/entities/coin.entity'
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { CoinCrypto } from '@coin/entities/coin-crypto.entity';
 
 @Entity()
 export class Exchange{
@@ -9,6 +9,6 @@ export class Exchange{
     name : string;
     @Column({type : 'varchar'})
     website : string;
-    @OneToMany(type => Coin,coinEntity => coinEntity.exchange)
-    coins : Coin[]
+    @OneToMany(type => CoinCrypto,coinCrypto => coinCrypto.exchange)
+    coins : CoinCrypto[]
 }

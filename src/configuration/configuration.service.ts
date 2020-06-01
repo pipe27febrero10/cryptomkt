@@ -33,4 +33,10 @@ export class ConfigurationService {
         const host : string = this.configService.get<string>("HOST_MYSQL")
         return host
     }
+
+    getOpenExchangeApiKey() : string
+    {
+        const openExchangeApiKey : string = this.configService.get<string>("OPEN_EXCHANGE_API_KEY")
+        return openExchangeApiKey
+    }
 }
