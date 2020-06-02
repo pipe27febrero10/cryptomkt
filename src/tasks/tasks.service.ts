@@ -38,6 +38,7 @@ export class TasksService {
   @Cron('*/10 * * * * *')
   async updateDolarValue() {
     this.dolarValue = await this.localIndicatorService.getUsdCurrentValueInClp();
+    
   }
 
   @Cron('*/10 * * * * *')
