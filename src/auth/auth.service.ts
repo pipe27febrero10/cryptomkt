@@ -7,6 +7,8 @@ import { UserDto } from '../user/dto/user.dto';
 import { debug } from 'console';
 import { RegistrationStatus } from './interfaces/registration-status.interface';
 import { UserCreateDto } from '../user/dto/user-create.dto';
+import { TokenResponse } from './interfaces/token-response.interface';
+import { toUserDto } from '@user/mapper';
 
 
 @Injectable()
@@ -15,25 +17,21 @@ export class AuthService {
 
     private readonly logger = new Logger(AuthService.name);
     
-    async register(user: UserCreateDto) {
+    async register(user: UserCreateDto) : Promise<RegistrationStatus>{
       let status: RegistrationStatus = {
         success: true,
-        message: 'user register',
+        message: 'user register successfully',
       };
       try {
         await this.usersService.create(user);
       } catch (err) {
-        //debug(err);
         status = { success: false, message: err };
       }
       return status;
     }
-    createToken(user: User) {
-      //debug('get the expiration');
+
+    createToken(user: User) : TokenResponse{
       const expiresIn = 3600;
-      //debug('sign the token');
-      //debug(user);
-  
       const accessToken = jwt.sign(
         {
           id: user.id,
@@ -44,16 +42,17 @@ export class AuthService {
         'Codebrains',
         { expiresIn },
       );
-      //debug('return the token');
-      //debug(accessToken);
-      return {
+      const tokenResponse : TokenResponse = {
         expiresIn,
-        accessToken,
-      };
+        accessToken
+      }
+      return tokenResponse;
     }
   
-    async validateUserToken(payload: JwtPayload): Promise<User> {
-      return await this.usersService.findById(payload.id);
+    async validateUserToken(payload: JwtPayload): Promise<UserDto> {
+      const user : User = await this.usersService.findById(payload.id)
+      const userDto : UserDto = toUserDto(user)
+      return userDto
     }
 
     async validateUser(email: string, password: string): Promise<UserDto> {
