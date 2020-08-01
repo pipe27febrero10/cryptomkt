@@ -11,17 +11,17 @@ export class StatisticsService {
     {
         let queryBuilder = this.coinHistoryRepository
         .createQueryBuilder('coin-history')
-        .leftJoinAndSelect('coin-history.coin', 'coin')
-
+        //.leftJoinAndSelect('coin-history.coin', 'coin')
         if(sortType !== undefined && sortField !== undefined)
         {
             queryBuilder = this.coinHistoryRepository
             .createQueryBuilder('coin-history')
-            .leftJoinAndSelect('coin-history.coin', 'coin')
             .orderBy('coin-history.'+sortField,sortType)
         }
-        
-        const coinHistoriesPaginated : Pagination<CoinHistory> = await paginate<CoinHistory>(queryBuilder,options)
+        let coinHistoriesPaginated : Pagination<CoinHistory> = await paginate<CoinHistory>(queryBuilder,options)
+        let itemsPromise : Array<Promise<CoinHistory>>= coinHistoriesPaginated.items.map(coinHistory => this.coinHistoryRepository.findOne({relations : ["coin"],where : {id : coinHistory.id}}))
+        let items : Array<CoinHistory>= await Promise.all(itemsPromise)    
+        coinHistoriesPaginated = new Pagination<CoinHistory>(items,coinHistoriesPaginated.meta,coinHistoriesPaginated.links)
         return coinHistoriesPaginated
     }
 }

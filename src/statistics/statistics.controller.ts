@@ -38,7 +38,6 @@ export class StatisticsController {
             page
         },sortType === "ASC" ? "ASC" : "DESC",sortField)
       }
-
       return this.statisticsService.index({
         limit,
         page
