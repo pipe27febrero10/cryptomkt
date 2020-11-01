@@ -3,13 +3,8 @@ import {
     UseGuards,
     HttpStatus,
     Response,
-    Request,
-    Get,
     Post,
     Body,
-    Put,
-    Param,
-    Delete,
     HttpException,
   } from '@nestjs/common';
 
@@ -19,13 +14,11 @@ import { UserService } from '../user/user.service'
 import { UserCreateDto } from '../user/dto/user-create.dto'
 import { AuthGuard } from '@nestjs/passport';
 import { LoginUserDto } from './dto/login-user.dto'
-import { RolesGuard } from './roles.guard'
-import { Roles } from './roles.decorator';
 import { TokenResponse } from './interfaces/token-response.interface';
 import { RegistrationStatus } from './interfaces/registration-status.interface';
 
-@ApiTags('auth')
 @Controller('auth')
+@ApiTags('Auth')
 export class AuthController {
     constructor(
         private readonly authService: AuthService,

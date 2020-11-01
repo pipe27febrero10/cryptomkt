@@ -10,12 +10,13 @@ async function bootstrap() {
     .setTitle('Exchanges Crypto')
     .setDescription('Exchanges Crypto stock values')
     .setVersion('1.0.0')
-    .addTag('users')
-    .addTag('auth')
-    .addTag('cryptomkt')
-    .addTag('coins')
-    .addTag('exchanges')
-    .addTag('buda')
+    .addTag('Users')
+    .addTag('Auth')
+    .addTag('Cryptomkt')
+    .addTag('Coins')
+    .addTag('Exchanges')
+    .addTag('Buda')
+    .addTag('Statistics')
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
