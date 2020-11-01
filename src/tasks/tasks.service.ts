@@ -33,7 +33,7 @@ export class TasksService {
   ) {}
   private readonly logger = new Logger(TasksService.name);
 
-  dolarValue: number = NaN;
+  dolarValue = NaN;
 
   @Cron('*/10 * * * * *')
   async updateDolarValue() {
@@ -44,7 +44,7 @@ export class TasksService {
   @Cron('*/10 * * * * *')
   async updateCoinsCryptoMkt() {
     let coinsCrypto: Array<CoinCrypto> = await this.coinServiceCrypto.getAll();
-    let cryptomktExchange: Exchange = await this.exchangeService.findByName(
+    const cryptomktExchange: Exchange = await this.exchangeService.findByName(
       cryptomktConstants.exchangeName,
     );
 
@@ -59,19 +59,19 @@ export class TasksService {
       coinCrypto => coinCrypto.symbol,
     );
 
-    let promises = symbols.map(symbol =>
+    const promises = symbols.map(symbol =>
       this.cryptoMktService.getMarketPrice(symbol + 'CLP'),
     ); // get markets price in clp
     let responses: Array<ResponseCryptoMkt> = null;
 
     responses = await Promise.all(promises);
-    let datas: Array<ResponseCoin> = responses.map(({ data }) => data[0]);
+    const datas: Array<ResponseCoin> = responses.map(({ data }) => data[0]);
 
-    let priceUsdInClp: number = this.dolarValue;
+    const priceUsdInClp: number = this.dolarValue;
 
     datas.forEach(data => {
-      let symbol = data.market.substring(0, 3);
-      let coinCrypto: CoinCrypto = coinsCrypto.find(
+      const symbol = data.market.substring(0, 3);
+      const coinCrypto: CoinCrypto = coinsCrypto.find(
         coinCrypto => coinCrypto.symbol === symbol,
       );
       if (coinCrypto) {
@@ -87,7 +87,7 @@ export class TasksService {
         }
       }
     });
-    let coinsSaved: Array<CoinCrypto> = await this.coinServiceCrypto.saveMany(
+    await this.coinServiceCrypto.saveMany(
       coinsCrypto,
     );
   }
@@ -96,7 +96,7 @@ export class TasksService {
   async updateCoinsBuda() {
     let coinsCrypto: Array<CoinCrypto> = await this.coinServiceCrypto.getAll();
 
-    let budaExchange: Exchange = await this.exchangeService.findByName(
+    const budaExchange: Exchange = await this.exchangeService.findByName(
       budaConstants.exchangeName,
     );
     if(budaExchange)
@@ -111,22 +111,22 @@ export class TasksService {
       const symbols: Array<string> = coinsCrypto.map(
         coinCrypto => coinCrypto.symbol,
       );
-      for (let symbol of symbols) {
-        let responseBudaTicker: ResponseBudaTicker = await this.budaService.getMarketTicker(
+      for (const symbol of symbols) {
+        const responseBudaTicker: ResponseBudaTicker = await this.budaService.getMarketTicker(
           symbol,
         );
-        let currentDate: string = moment().utc().format();
-        let usdValueInClp: number = this.dolarValue;
+        const currentDate: string = moment().utc().format();
+        const usdValueInClp: number = this.dolarValue;
         if (usdValueInClp) {
-          let priceClp: number = Number(responseBudaTicker.ticker.last_price[0]);
-          let priceUsd: number = priceClp / usdValueInClp;
-          let askPriceClp: number = Number(responseBudaTicker.ticker.min_ask[0]);
-          let bidPriceClp: number = Number(responseBudaTicker.ticker.max_bid[0]);
-          let askPriceUsd: number = askPriceClp / usdValueInClp;
-          let bidPriceusd: number = bidPriceClp / usdValueInClp;
-          let volume: number = Number(responseBudaTicker.ticker.volume[0]);
+          const priceClp = Number(responseBudaTicker.ticker.last_price[0]);
+          const priceUsd: number = priceClp / usdValueInClp;
+          const askPriceClp = Number(responseBudaTicker.ticker.min_ask[0]);
+          const bidPriceClp = Number(responseBudaTicker.ticker.max_bid[0]);
+          const askPriceUsd: number = askPriceClp / usdValueInClp;
+          const bidPriceusd: number = bidPriceClp / usdValueInClp;
+          const volume = Number(responseBudaTicker.ticker.volume[0]);
           // coin to update information
-          let coinCrypto = coinsCrypto.find(coin => coin.symbol === symbol);
+          const coinCrypto = coinsCrypto.find(coin => coin.symbol === symbol);
           coinCrypto.lastUpdate = currentDate;
           coinCrypto.bidPriceClp = bidPriceClp;
           coinCrypto.askPriceClp = askPriceClp;
@@ -145,23 +145,23 @@ export class TasksService {
 
   @Cron('*/10 * * * * *')
   async coinHistory() {
-    let coinsCrypto: Array<CoinCrypto> = await this.coinServiceCrypto.getAll();
-    let dolarPriceClp: number = this.dolarValue;
+    const coinsCrypto: Array<CoinCrypto> = await this.coinServiceCrypto.getAll();
+    const dolarPriceClp: number = this.dolarValue;
 
-    for (let coinCrypto of coinsCrypto) {
-      let now = moment().utc().format();
-      let symbol = coinCrypto.symbol;
+    for (const coinCrypto of coinsCrypto) {
+      const now = moment().utc().format();
+      const symbol = coinCrypto.symbol;
 
-      let marketPoloniexDto: MarketPoloniexDto = await this.poloniexService.getMarket(
+      const marketPoloniexDto: MarketPoloniexDto = await this.poloniexService.getMarket(
         symbol,
       );
 
       if (marketPoloniexDto) {
-        let lastVariation = coinCrypto.priceUsd / marketPoloniexDto.last;
-        let bidVariation = coinCrypto.bidPriceUsd / marketPoloniexDto.last;
-        let askVariation = coinCrypto.askPriceUsd / marketPoloniexDto.last;
+        const lastVariation = coinCrypto.priceUsd / marketPoloniexDto.last;
+        const bidVariation = coinCrypto.bidPriceUsd / marketPoloniexDto.last;
+        const askVariation = coinCrypto.askPriceUsd / marketPoloniexDto.last;
         if (dolarPriceClp) {
-          let coinHistory: CoinHistory = this.coinHistoryRepo.create({
+          const coinHistory: CoinHistory = this.coinHistoryRepo.create({
             lastVariation: lastVariation,
             bidVariation: bidVariation,
             askVariation: askVariation,
@@ -169,8 +169,7 @@ export class TasksService {
             coin: coinCrypto,
             timestamp: now,
           });
-          let coinHistorySaved = await this.coinHistoryRepo.save(coinHistory);
-          
+          await this.coinHistoryRepo.save(coinHistory);
         }
       }
     }

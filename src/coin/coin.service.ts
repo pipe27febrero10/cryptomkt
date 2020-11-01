@@ -11,7 +11,7 @@ export class CoinService {
 
     async create(createCoinDto : CreateCoinDto) : Promise<Coin>
     {
-        let coin : Coin = this.coinRepository.create(createCoinDto)
+        const coin : Coin = this.coinRepository.create(createCoinDto)
 
         try
         {
@@ -27,7 +27,7 @@ export class CoinService {
 
     async save(coin : Coin) : Promise<Coin>
     {
-        let coinSaved : Coin = await this.coinRepository.save(coin)
+        const coinSaved : Coin = await this.coinRepository.save(coin)
         return coinSaved
     }
 
@@ -47,7 +47,7 @@ export class CoinService {
     async createMany(createCoinsDto : Array<CreateCoinDto>) : Promise<Array<Coin>>
     {
         let coins : Array<Coin> = []
-        let promises : any =  createCoinsDto.map(createCoinDto => this.create(createCoinDto))
+        const promises : any =  createCoinsDto.map(createCoinDto => this.create(createCoinDto))
         try
         {
            coins  = await Promise.all(promises)
@@ -61,13 +61,13 @@ export class CoinService {
 
     async getAll() : Promise<Array<Coin>>
     {
-        let coins : Array<Coin> = await this.coinRepository.find()
+        const coins : Array<Coin> = await this.coinRepository.find()
         return coins
     }
 
     async getBySymbol(symbol : string) : Promise<Coin>
     {
-        let coin : Coin = await this.coinRepository.findOne({where : {symbol}})
+        const coin : Coin = await this.coinRepository.findOne({where : {symbol}})
         return coin
     }
 }

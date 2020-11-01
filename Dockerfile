@@ -1,6 +1,13 @@
-FROM node:14-alpine
+FROM node:14.11-alpine
+
 WORKDIR /usr/src/app
-COPY . .
+
+COPY package*.json ./
+
 RUN npm install
-EXPOSE 3000
-CMD ["npm","run","start:dev"]
+
+COPY . .
+
+RUN npm run build
+
+CMD ["npm","run", "start:prod"]

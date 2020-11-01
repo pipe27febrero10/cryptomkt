@@ -6,8 +6,9 @@ import { ExchangeDto } from './dto/exchange.dto';
 import { toExchangeDto } from '@exchange/mapper'
 import { ApiTags } from '@nestjs/swagger';
 
-@ApiTags('exchanges')
+
 @Controller('exchanges')
+@ApiTags('Exchanges')
 export class ExchangeController {
     constructor(private exchangeService : ExchangeService) {}
 
@@ -23,7 +24,7 @@ export class ExchangeController {
            throw(new HttpException(err,HttpStatus.INTERNAL_SERVER_ERROR)) 
         }
         
-        let exchangeDto : ExchangeDto = toExchangeDto(exchange)
+        const exchangeDto : ExchangeDto = toExchangeDto(exchange)
         return exchangeDto
     }
 
@@ -38,7 +39,7 @@ export class ExchangeController {
         {
             throw(new HttpException('getAll() service error',HttpStatus.INTERNAL_SERVER_ERROR))
         }
-        let exchangeDto : Array<ExchangeDto> = exchanges.map(exchange => toExchangeDto(exchange))
+        const exchangeDto : Array<ExchangeDto> = exchanges.map(exchange => toExchangeDto(exchange))
         return exchangeDto
     }
 }

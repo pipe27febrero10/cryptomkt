@@ -9,8 +9,8 @@ import { exchangeWebsite,exchangeName } from './constants';
 import { ApiTags } from '@nestjs/swagger';
 import { CoinDto } from '@coin/dto/coin.dto';
 
-@ApiTags('cryptomkt')
 @Controller('cryptomkt')
+@ApiTags('Cryptomkt')
 export class CryptomktController {
     constructor(private readonly cryptomktService : CryptomktService,
                 private readonly exchangeService : ExchangeService){}    
@@ -31,20 +31,20 @@ export class CryptomktController {
     @Get('/setup_cryptomkt_coins')
     async setCoins() : Promise<CoinDto[]>
     {
-        let responseGetAllMarkets : ResponseCryptoMkt = await this.cryptomktService.getAllMarkets()
-        let markets : Array<string> = responseGetAllMarkets.data
-        let symbols : Array<string> = markets.map(market => market.substring(0,3))
+        const responseGetAllMarkets : ResponseCryptoMkt = await this.cryptomktService.getAllMarkets()
+        const markets : Array<string> = responseGetAllMarkets.data
+        const symbols : Array<string> = markets.map(market => market.substring(0,3))
         return this.cryptomktService.setupCoins(symbols)
     }
 
     @Get('/setup_cryptomkt_exchange')
     async setExchange() : Promise<ExchangeDto>
     {
-        let createExchangeDto : CreateExchangeDto = {
+        const createExchangeDto : CreateExchangeDto = {
             name : exchangeName,
             website : exchangeWebsite
         }
-        let exchangeCreated = await this.exchangeService.create(createExchangeDto)
+        const exchangeCreated = await this.exchangeService.create(createExchangeDto)
         return toExchangeDto(exchangeCreated)
     }
 }

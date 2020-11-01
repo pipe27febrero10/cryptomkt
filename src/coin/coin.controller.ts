@@ -7,15 +7,15 @@ import { CoinDto } from './dto/coin.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @Controller('coins')
-@ApiTags('coins')
+@ApiTags('Coins')
 export class CoinController {
     constructor(private coinService : CoinService) {}
 
     @Post('')
     async create(@Body() createCoinDto : CreateCoinDto) : Promise<CoinDto>
     {
-        let coin : Coin =  await this.coinService.create(createCoinDto)
-        let coinDto : CoinDto = toCoinDto(coin)
+        const coin : Coin =  await this.coinService.create(createCoinDto)
+        const coinDto : CoinDto = toCoinDto(coin)
         return coinDto
     }
 }
