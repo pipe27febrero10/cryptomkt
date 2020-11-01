@@ -18,5 +18,4 @@ export class CoinHistory{
     timestamp : string;
     @ManyToOne(type => CoinCrypto,coinCrypto => coinCrypto.coinsHistory)
     coin : CoinCrypto;
-
 }

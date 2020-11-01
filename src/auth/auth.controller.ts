@@ -3,13 +3,9 @@ import {
     UseGuards,
     HttpStatus,
     Response,
-    Request,
-    Get,
     Post,
     Body,
-    Put,
-    Param,
-    Delete,
+    HttpException,
   } from '@nestjs/common';
 
 import { ApiTags } from '@nestjs/swagger'
@@ -18,11 +14,11 @@ import { UserService } from '../user/user.service'
 import { UserCreateDto } from '../user/dto/user-create.dto'
 import { AuthGuard } from '@nestjs/passport';
 import { LoginUserDto } from './dto/login-user.dto'
-import { RolesGuard } from './roles.guard'
-import { Roles } from './roles.decorator';
+import { TokenResponse } from './interfaces/token-response.interface';
+import { RegistrationStatus } from './interfaces/registration-status.interface';
 
-@ApiTags('auth')
 @Controller('auth')
+@ApiTags('Auth')
 export class AuthController {
     constructor(
         private readonly authService: AuthService,
@@ -30,17 +26,17 @@ export class AuthController {
       ) {}
 
       @Post('register')
-      public async register(@Response() res, @Body() userCreateDto : UserCreateDto) {
-        const result = await this.authService.register(userCreateDto);
-        if (!result.success) {
-          return res.status(HttpStatus.BAD_REQUEST).json(result);
+      public async register(@Response() res, @Body() userCreateDto : UserCreateDto) : Promise<RegistrationStatus> {
+        const registrationStatus : RegistrationStatus = await this.authService.register(userCreateDto);
+        if (!registrationStatus.success) {
+          throw(new HttpException("registration failed",HttpStatus.INTERNAL_SERVER_ERROR))
         }
-        return res.status(HttpStatus.OK).json(result);
+        return registrationStatus
       }
 
   @UseGuards(AuthGuard('local'))
   @Post('login')
-  public async login(@Response() res, @Body() login: LoginUserDto) {
+  public async login(@Response() res, @Body() login: LoginUserDto) : Promise<TokenResponse> {
     const user = await this.userService.findByEmail(login.email);
     if (!user) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -48,19 +44,9 @@ export class AuthController {
       });
     } else {
       //debug('start getting the token');
-      const token = this.authService.createToken(user);
+      const token : TokenResponse = this.authService.createToken(user);
       //debug(token.accessToken);
       return res.status(HttpStatus.OK).json(token);
     }
-  }
-  @Get('test')
-  @Roles('pipe27febrero30@hotmail.com')
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  public test(@Response() res,@Request() req)
-  {
-    console.log("tercero")
-    return res.status(200).send("hello world")
-  }
-
-    
+  } 
 }

@@ -14,8 +14,8 @@ export class CoinCryptoController {
     @Post('/:id_exchange')
     async create(@Body() createCoinDto : CreateCoinCryptoDto,@Param('id_exchange') idExchange : string) : Promise<CoinDto>
     {
-        let coin : Coin =  await this.coinCryptoService.create(createCoinDto,idExchange)
-        let coinDto : CoinDto = toCoinDto(coin)
+        const coin : Coin =  await this.coinCryptoService.create(createCoinDto,idExchange)
+        const coinDto : CoinDto = toCoinDto(coin)
         return coinDto
     }
 }

@@ -4,7 +4,7 @@ import { UserDto } from '../dto/user.dto'
 
 @Entity()
 export class User{
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('uuid')
     id : string;
     @Column({nullable : false})
     firstName : string;
@@ -21,13 +21,13 @@ export class User{
         this.password = await bcrypt.hash(this.password,10)
     }
 
-    async comparePassword(attempt: string): Promise<Boolean> {
+    async comparePassword(attempt: string): Promise<boolean> {
         return await bcrypt.compare(attempt, this.password);
     }
 
     toUserDto(user : User)  {
         const {id,firstName,lastName,email} = user
-        let userDto : UserDto = {
+        const userDto : UserDto = {
             id,
             firstName,
             lastName,
