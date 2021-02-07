@@ -17,10 +17,11 @@ async function bootstrap() {
     .addTag('Exchanges')
     .addTag('Buda')
     .addTag('Statistics')
+    .addTag('Orionx')
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(3000);
+  await app.listen(3001);
 }
 bootstrap();

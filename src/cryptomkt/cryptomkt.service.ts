@@ -161,7 +161,6 @@ export class CryptomktService {
         }
         let idExchange : string = exchange.id
         let coinsCreated  : Array<CoinCrypto>  = await this.coinService.createMany(coinsCryptoDto,idExchange)
-        console.log(coinsCreated)
         let coinsDto : Array<CoinCryptoDto> = coinsCreated.map(coinCreated => toCoinCrytoDto(coinCreated))
         return coinsDto
     }
