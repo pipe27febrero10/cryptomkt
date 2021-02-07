@@ -17,6 +17,7 @@ async function bootstrap() {
     .addTag('Exchanges')
     .addTag('Buda')
     .addTag('Statistics')
+    .addTag('mail')
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
