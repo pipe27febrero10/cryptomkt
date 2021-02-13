@@ -8,7 +8,7 @@ import { CoinCryptoDto } from "./dto/coin-crypto.dto"
 export const toCoinDto = (coin : Coin) : CoinDto => {
     const {id,name,symbol,priceClp,priceUsd,lastUpdate} = coin
     
-    let coinDto : CoinDto = {
+    const coinDto : CoinDto = {
         id: id,
         name : name,
         symbol : symbol,

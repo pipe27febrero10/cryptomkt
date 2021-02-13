@@ -8,9 +8,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoinHistory } from 'statistics/entity/coin-history.entity';
 import { ExchangeModule } from '@exchange/exchange.module';
 import { BudaModule } from '@buda/buda.module';
+import { MailModule } from 'mail/mail.module';
 
 @Module({
   providers: [TasksService],
-  imports : [CryptomktModule,BudaModule,CoinModule,LocalindicatorModule,PoloniexModule,TypeOrmModule.forFeature([CoinHistory]),ExchangeModule]
+  imports: [CryptomktModule, BudaModule, CoinModule, LocalindicatorModule, PoloniexModule, TypeOrmModule.forFeature([CoinHistory]), ExchangeModule, MailModule]
 })
-export class TasksModule {}
+export class TasksModule { }
