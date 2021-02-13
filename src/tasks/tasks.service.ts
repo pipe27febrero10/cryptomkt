@@ -18,6 +18,15 @@ import { ResponseBudaTicker } from '@buda/interfaces/response-buda-ticker.interf
 import { CoinCryptoService } from '@coin/coin-crypto.service';
 import { CoinCrypto } from '@coin/entities/coin-crypto.entity';
 import * as moment from 'moment';
+import { MailService } from 'mail/mail.service';
+import { EmailRequestDto } from 'mail/dtos/email-request.dto';
+import { Mail } from 'mail/entities/mail.entity';
+
+const coinsToNotify = ["f9adc130-7313-4ab1-84b2-e56e72046664","c3a992a1-b4ef-45b1-9755-59b8c7279a09","87dc55f7-490a-4e12-a869-4a32e590f437"]
+const rangeCoins = {
+  lte: 0.98,
+  gte: 1.025 
+}
 
 @Injectable()
 export class TasksService {
@@ -28,6 +37,7 @@ export class TasksService {
     private readonly poloniexService: PoloniexService,
     private readonly exchangeService: ExchangeService,
     private readonly budaService: BudaService,
+    private readonly mailService: MailService,
     @InjectRepository(CoinHistory)
     private readonly coinHistoryRepo: Repository<CoinHistory>,
   ) {}
@@ -35,13 +45,13 @@ export class TasksService {
 
   dolarValue = NaN;
 
-  @Cron('*/10 * * * * *')
+  @Cron('*/20 * * * * *')
   async updateDolarValue() {
     this.dolarValue = await this.localIndicatorService.getUsdCurrentValueInClp();
     
   }
 
-  @Cron('*/10 * * * * *')
+  @Cron('*/20 * * * * *')
   async updateCoinsCryptoMkt() {
     let coinsCrypto: Array<CoinCrypto> = await this.coinServiceCrypto.getAll();
     const cryptomktExchange: Exchange = await this.exchangeService.findByName(
@@ -92,7 +102,7 @@ export class TasksService {
     );
   }
 
-  @Cron('*/10 * * * * *')
+  @Cron('*/20 * * * * *')
   async updateCoinsBuda() {
     let coinsCrypto: Array<CoinCrypto> = await this.coinServiceCrypto.getAll();
 
@@ -143,10 +153,11 @@ export class TasksService {
     
   }
 
-  @Cron('*/10 * * * * *')
+  @Cron('*/20 * * * * *')
   async coinHistory() {
     const coinsCrypto: Array<CoinCrypto> = await this.coinServiceCrypto.getAll();
     const dolarPriceClp: number = this.dolarValue;
+    let emailsBody = []
 
     for (const coinCrypto of coinsCrypto) {
       const now = moment().utc().format();
@@ -169,8 +180,59 @@ export class TasksService {
             coin: coinCrypto,
             timestamp: now,
           });
-          await this.coinHistoryRepo.save(coinHistory);
+          const emailRequest : EmailRequestDto = {
+            to: 'feleteli@egresados.ubiobio.cl',
+            from: 'no-reply@digitalaccount.store',
+            subject: '',
+            text: ''
+          }
+
+          try{
+            await this.coinHistoryRepo.save(coinHistory);
+            if(coinsToNotify.includes(coinCrypto.id)){
+              const mails : Mail[] = await this.mailService.getByEmail('feleteli@egresados.ubiobio.cl','DESC')
+              const lastMail : Mail = mails.length ? mails[0] : null
+              const lastDatemail = lastMail ? lastMail.timestamp : null;
+              const nextDateMail = lastDatemail ? moment(lastDatemail).utc().add('30','minutes') : now
+              
+              if(bidVariation >= rangeCoins.gte)
+              {
+                emailRequest.subject = `Precio de venta de criptomonedas favorable`
+                emailRequest.text = `Los compradores estan ofreciendo mas que el rango ajustado de  ${rangeCoins.gte} de la criptomoneda: ${coinCrypto.name}`
+                if(moment(nextDateMail).isSameOrBefore(now))
+                {
+                  emailsBody = [...emailsBody,emailRequest]
+                }     
+              }
+
+              if(askVariation <= rangeCoins.lte)
+              {
+                emailRequest.subject = `Precio de compra de criptomonedas favorable`
+                emailRequest.text = `Los vendedores estan ofreciendo menos que el rango ajustado de  ${rangeCoins.lte} de la criptomoneda: ${coinCrypto.name}`
+                if(moment(nextDateMail).isSameOrBefore(now))
+                {
+                  emailsBody = [...emailsBody,emailRequest]
+                }
+              }
+            }
+          }
+          catch(err)
+          {
+            console.log(err)
+          }
         }
+      }
+    }
+
+    for(const email of emailsBody)
+    {
+      console.log('sending email.....')
+      try{
+        await this.mailService.sendMail(email)
+      }
+      catch(err)
+      {
+        console.log(err)
       }
     }
   }
