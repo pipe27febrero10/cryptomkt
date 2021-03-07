@@ -17,6 +17,7 @@ async function bootstrap() {
     .addTag('Exchanges')
     .addTag('Buda')
     .addTag('Statistics')
+    .addTag('mail')
     .addTag('Orionx')
     .build();
   const document = SwaggerModule.createDocument(app, options);

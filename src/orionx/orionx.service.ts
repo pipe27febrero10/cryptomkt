@@ -76,6 +76,16 @@ export class OrionxService {
         const usdValueInClp : number = await this.localIndicatorService.getUsdCurrentValueInClp()
         let coinsCryptoDto : Array<CreateCoinCryptoDto> = []
         
+        const allowedSymbols = ['BTC','BCH','DAI','XLM','LTC','XRP','XLM','ETH']
+
+        names = names.reduce((accumulator,name) => {
+            if(allowedSymbols.find(symbol => symbol === name))
+            {
+                accumulator = [...accumulator,name]
+            }
+            return accumulator;
+        },[])
+
         for(const name of names)
         {
            const responseMarketBookPrice : ResponseOrionxMarketBook = await Orionx.marketOrderBook({marketCode: `${name}CLP`, limit: 1})

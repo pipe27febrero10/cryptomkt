@@ -12,12 +12,25 @@ import { CoinHistory } from 'statistics/entity/coin-history.entity';
 import { ExchangeService } from '@exchange/exchange.service';
 import * as cryptomktConstants from '../cryptomkt/constants';
 import * as budaConstants from '../buda/constants';
+import * as orionxConstants from '../orionx/constants';
 import { Exchange } from '@exchange/entities/exchange.entity';
 import { BudaService } from '@buda/buda.service';
 import { ResponseBudaTicker } from '@buda/interfaces/response-buda-ticker.interface';
 import { CoinCryptoService } from '@coin/coin-crypto.service';
 import { CoinCrypto } from '@coin/entities/coin-crypto.entity';
 import * as moment from 'moment';
+import { MailService } from 'mail/mail.service';
+import { EmailRequestDto } from 'mail/dtos/email-request.dto';
+import { Mail } from 'mail/entities/mail.entity';
+import ResponseOrionxMarketBook from 'orionx/dto/response-orionx-market-book';
+import ResponseOrionxMarket from 'orionx/dto/response-orionx-market';
+import Orionx from 'orionx-sdk'
+
+const coinsToNotify = ["f9adc130-7313-4ab1-84b2-e56e72046664","c3a992a1-b4ef-45b1-9755-59b8c7279a09","87dc55f7-490a-4e12-a869-4a32e590f437"]
+const rangeCoins = {
+  lte: 0.98,
+  gte: 1.025 
+}
 
 @Injectable()
 export class TasksService {
@@ -28,6 +41,7 @@ export class TasksService {
     private readonly poloniexService: PoloniexService,
     private readonly exchangeService: ExchangeService,
     private readonly budaService: BudaService,
+    private readonly mailService: MailService,
     @InjectRepository(CoinHistory)
     private readonly coinHistoryRepo: Repository<CoinHistory>,
   ) {}
@@ -35,13 +49,75 @@ export class TasksService {
 
   dolarValue = NaN;
 
-  @Cron('*/10 * * * * *')
+  @Cron('*/20 * * * * *')
   async updateDolarValue() {
     this.dolarValue = await this.localIndicatorService.getUsdCurrentValueInClp();
     
   }
 
-  @Cron('*/10 * * * * *')
+  @Cron('*/20 * * * * *')
+  async updateCoinsOrionx() {
+    let coinsCrypto: Array<CoinCrypto> = await this.coinServiceCrypto.getAll();
+
+    const cryptomktExchange: Exchange = await this.exchangeService.findByName(
+      orionxConstants.exchangeName
+    );
+    
+    coinsCrypto = coinsCrypto.reduce((accumulator, coinCrypto) => {
+      if (coinCrypto.exchange.id === cryptomktExchange.id) {
+        accumulator = [...accumulator, coinCrypto];
+      }
+      return accumulator;
+    }, []);
+
+    let symbols: Array<string> = coinsCrypto.map(
+      coinCrypto => coinCrypto.symbol,
+    );
+
+    // cryptocurrencies availables in poloniex and orionx
+    const allowedSymbols = ['BTC','BCH','DAI','XLM','LTC','XRP','XLM','ETH']
+
+    symbols = symbols.reduce((accumulator,symbol) => {
+      if(allowedSymbols.find(s => s === symbol))
+      {
+          accumulator = [...accumulator,symbol]
+      }
+      return accumulator;
+  },[])
+
+    for (const symbol of symbols) {
+      const responseMarketBookPrice : ResponseOrionxMarketBook = await Orionx.marketOrderBook({marketCode: `${symbol}CLP`, limit: 1})
+      const responseMarketPrice : ResponseOrionxMarket = await Orionx.market({code: `${symbol}CLP`})
+
+      const currentDate: string = moment().utc().format();
+      const usdValueInClp: number = this.dolarValue;
+
+      if (usdValueInClp) {
+        const priceClp = responseMarketPrice.lastTrade.price
+        const priceUsd = priceClp/usdValueInClp 
+        const askPriceClp = responseMarketBookPrice.sell[0].limitPrice
+        const bidPriceClp = responseMarketBookPrice.buy[0].limitPrice
+        const askPriceUsd: number = askPriceClp/usdValueInClp
+        const bidPriceusd: number = bidPriceClp/usdValueInClp
+        // coin to update information
+        const coinCrypto = coinsCrypto.find(coin => coin.symbol === symbol);
+
+        coinCrypto.lastUpdate = currentDate;
+        coinCrypto.bidPriceClp = bidPriceClp;
+        coinCrypto.askPriceClp = askPriceClp;
+        coinCrypto.askPriceUsd = askPriceUsd;
+        coinCrypto.bidPriceUsd = bidPriceusd;
+        coinCrypto.priceClp = priceClp;
+        coinCrypto.priceUsd = priceUsd;
+
+        await this.coinServiceCrypto.save(coinCrypto);
+      }
+    }
+
+    
+  }
+
+  @Cron('*/20 * * * * *')
   async updateCoinsCryptoMkt() {
     let coinsCrypto: Array<CoinCrypto> = await this.coinServiceCrypto.getAll();
     const cryptomktExchange: Exchange = await this.exchangeService.findByName(
@@ -60,7 +136,7 @@ export class TasksService {
     );
 
     const promises = symbols.map(symbol =>
-      this.cryptoMktService.getMarketPrice(symbol + 'CLP'),
+      this.cryptoMktService.getMarketPrice(symbol + 'CLP')
     ); // get markets price in clp
     let responses: Array<ResponseCryptoMkt> = null;
 
@@ -92,7 +168,7 @@ export class TasksService {
     );
   }
 
-  @Cron('*/10 * * * * *')
+  @Cron('*/20 * * * * *')
   async updateCoinsBuda() {
     let coinsCrypto: Array<CoinCrypto> = await this.coinServiceCrypto.getAll();
 
@@ -143,10 +219,11 @@ export class TasksService {
     
   }
 
-  @Cron('*/10 * * * * *')
+  @Cron('*/20 * * * * *')
   async coinHistory() {
     const coinsCrypto: Array<CoinCrypto> = await this.coinServiceCrypto.getAll();
     const dolarPriceClp: number = this.dolarValue;
+    let emailsBody = []
 
     for (const coinCrypto of coinsCrypto) {
       const now = moment().utc().format();
@@ -169,8 +246,59 @@ export class TasksService {
             coin: coinCrypto,
             timestamp: now,
           });
-          await this.coinHistoryRepo.save(coinHistory);
+          const emailRequest : EmailRequestDto = {
+            to: 'feleteli@egresados.ubiobio.cl',
+            from: 'no-reply@digitalaccount.store',
+            subject: '',
+            text: ''
+          }
+
+          try{
+            await this.coinHistoryRepo.save(coinHistory);
+            if(coinsToNotify.includes(coinCrypto.id)){
+              const mails : Mail[] = await this.mailService.getByEmail('feleteli@egresados.ubiobio.cl','DESC')
+              const lastMail : Mail = mails.length ? mails[0] : null
+              const lastDatemail = lastMail ? lastMail.timestamp : null;
+              const nextDateMail = lastDatemail ? moment(lastDatemail).utc().add('30','minutes') : now
+              
+              if(bidVariation >= rangeCoins.gte)
+              {
+                emailRequest.subject = `Precio de venta de criptomonedas favorable`
+                emailRequest.text = `Los compradores estan ofreciendo mas que el rango ajustado de  ${rangeCoins.gte} de la criptomoneda: ${coinCrypto.name}`
+                if(moment(nextDateMail).isSameOrBefore(now))
+                {
+                  emailsBody = [...emailsBody,emailRequest]
+                }     
+              }
+
+              if(askVariation <= rangeCoins.lte)
+              {
+                emailRequest.subject = `Precio de compra de criptomonedas favorable`
+                emailRequest.text = `Los vendedores estan ofreciendo menos que el rango ajustado de  ${rangeCoins.lte} de la criptomoneda: ${coinCrypto.name}`
+                if(moment(nextDateMail).isSameOrBefore(now))
+                {
+                  emailsBody = [...emailsBody,emailRequest]
+                }
+              }
+            }
+          }
+          catch(err)
+          {
+            console.log(err)
+          }
         }
+      }
+    }
+
+    for(const email of emailsBody)
+    {
+      console.log('sending email.....')
+      try{
+        await this.mailService.sendMail(email)
+      }
+      catch(err)
+      {
+        console.log(err)
       }
     }
   }

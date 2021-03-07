@@ -30,6 +30,7 @@
     "@nestjs/schedule": "^0.3.1",
     "@nestjs/swagger": "^4.5.1",
     "@nestjs/typeorm": "^7.0.0",
+    "@sendgrid/mail": "^7.4.2",
     "@types/bcrypt": "^3.0.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/dotenv": "^8.2.0",
