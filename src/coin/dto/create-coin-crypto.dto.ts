@@ -17,5 +17,5 @@ export class CreateCoinCryptoDto extends CreateCoinDto{
     bidPriceUsd : number;
     @ApiProperty()
     @IsNumber()
-    volume : number;
+    volume? : number;
 }
