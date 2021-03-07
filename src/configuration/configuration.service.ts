@@ -39,4 +39,16 @@ export class ConfigurationService {
         const openExchangeApiKey : string = this.configService.get<string>("OPEN_EXCHANGE_API_KEY")
         return openExchangeApiKey
     }
+
+    getOrionxApiKey() : string
+    {
+        const orionApiKey = this.configService.get<string>("ORION_API_KEY")
+        return orionApiKey
+    }
+
+    getOrionxSecretKey() : string
+    {
+        const orionxSecretKey = this.configService.get<string>("ORION_SECRET_KEY")
+        return orionxSecretKey
+    }
 }

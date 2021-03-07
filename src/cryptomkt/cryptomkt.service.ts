@@ -7,10 +7,8 @@ import { ExchangeDto } from '@exchange/dto/exchange.dto';
 import { exchangeName } from './constants'
 import { Exchange } from '@exchange/entities/exchange.entity';
 import { LocalindicatorService } from 'localindicator/localindicator.service';
-import { ValueDto } from 'localindicator/dto/value.dto';
 import { PoloniexService } from 'poloniex/poloniex.service';
 import { MarketPoloniexDto } from 'poloniex/dto/market-poloniex.dto';
-import { response } from 'express';
 import { CoinCrypto } from '@coin/entities/coin-crypto.entity';
 import { CoinCryptoDto } from '@coin/dto/coin-crypto.dto';
 import { CreateCoinCryptoDto } from '@coin/dto/create-coin-crypto.dto';
@@ -161,7 +159,6 @@ export class CryptomktService {
         }
         let idExchange : string = exchange.id
         let coinsCreated  : Array<CoinCrypto>  = await this.coinService.createMany(coinsCryptoDto,idExchange)
-        console.log(coinsCreated)
         let coinsDto : Array<CoinCryptoDto> = coinsCreated.map(coinCreated => toCoinCrytoDto(coinCreated))
         return coinsDto
     }

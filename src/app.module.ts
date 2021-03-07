@@ -13,10 +13,11 @@ import { StatisticsModule } from './statistics/statistics.module';
 import { ConfigModule } from '@nestjs/config';
 import { ConfigurationModule } from './configuration/configuration.module';
 import { BudaModule } from './buda/buda.module';
+import { OrionxModule } from './orionx/orionx.module';
 import { MailModule } from './mail/mail.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({isGlobal : true}),ScheduleModule.forRoot(),DatabaseModule, UserModule, AuthModule, CryptomktModule, CoinModule, ExchangeModule, LocalindicatorModule, TasksModule, PoloniexModule, StatisticsModule, ConfigurationModule, BudaModule, MailModule],
+  imports: [ConfigModule.forRoot({isGlobal : true}),ScheduleModule.forRoot(),DatabaseModule, UserModule, AuthModule, CryptomktModule, CoinModule, ExchangeModule, LocalindicatorModule, TasksModule, PoloniexModule, StatisticsModule, ConfigurationModule, BudaModule, OrionxModule, MailModule],
   controllers: [],
   providers: [],
 })
