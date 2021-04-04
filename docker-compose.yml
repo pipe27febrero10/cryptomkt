@@ -8,7 +8,7 @@ services:
     env_file: 
       - ./.env
     ports:
-      - '3000:3000'
+      - '3001:3001'
     depends_on:
       - mysql
   mysql:
@@ -32,5 +32,12 @@ services:
         # Where our data will be persisted
     volumes:
         - exchanges_evaluator:/var/lib/mysql
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
 volumes:
   exchanges_evaluator:
