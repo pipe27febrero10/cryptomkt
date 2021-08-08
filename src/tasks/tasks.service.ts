@@ -26,7 +26,6 @@ import ResponseOrionxMarketBook from 'orionx/dto/response-orionx-market-book';
 import ResponseOrionxMarket from 'orionx/dto/response-orionx-market';
 import Orionx from 'orionx-sdk'
 
-const coinsToNotify = ["0a0d65ec-1ca6-4e82-b4b4-8c765664aa50","2dfb8c26-f2c8-4bb8-b4c7-b9d827adab0a","597f1d7b-47ec-4207-a8b4-452043e0795c","88b17771-4dd3-44d2-95bc-cbe5cfa50567","b42ded5d-2105-487c-a322-f11964e20f1c","d58f1a70-8b4c-4531-8ad7-14a34b57dd1d","f403926c-2892-4c24-b7e0-aa9aad236124","f5f372a3-5862-4365-a4fc-fc7e6978bb8c"]
 const rangeCoins = {
   lte: 0.98,
   gte: 1.06 
@@ -34,6 +33,8 @@ const rangeCoins = {
 
 @Injectable()
 export class TasksService {
+  private coinsToNotifyIds = [];
+  private coinsToNotify = ['EOS','BCH','XRP','XLM','LTC'];
   constructor(
     private readonly cryptoMktService: CryptomktService,
     private readonly coinServiceCrypto: CoinCryptoService,
@@ -44,7 +45,8 @@ export class TasksService {
     private readonly mailService: MailService,
     @InjectRepository(CoinHistory)
     private readonly coinHistoryRepo: Repository<CoinHistory>,
-  ) {}
+  ) {
+  }
   private readonly logger = new Logger(TasksService.name);
 
   dolarValue = NaN;
@@ -255,7 +257,9 @@ export class TasksService {
 
           try{
             await this.coinHistoryRepo.save(coinHistory);
-            if(coinsToNotify.includes(coinCrypto.id)){
+            const allCoins = await this.coinServiceCrypto.getAll();
+            this.coinsToNotifyIds = allCoins.filter(coin => this.coinsToNotify.includes(coin.symbol)).map(coin => coin.id);
+            if(this.coinsToNotifyIds.includes(coinCrypto.id)){
               const mails : Mail[] = await this.mailService.getByEmail('feleteli@egresados.ubiobio.cl','DESC')
               const lastMail : Mail = mails.length ? mails[0] : null
               const lastDatemail = lastMail ? lastMail.timestamp : null;
