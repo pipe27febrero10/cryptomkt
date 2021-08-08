@@ -26,10 +26,10 @@ import ResponseOrionxMarketBook from 'orionx/dto/response-orionx-market-book';
 import ResponseOrionxMarket from 'orionx/dto/response-orionx-market';
 import Orionx from 'orionx-sdk'
 
-const coinsToNotify = ["f9adc130-7313-4ab1-84b2-e56e72046664","c3a992a1-b4ef-45b1-9755-59b8c7279a09","87dc55f7-490a-4e12-a869-4a32e590f437"]
+const coinsToNotify = ["0a0d65ec-1ca6-4e82-b4b4-8c765664aa50","2dfb8c26-f2c8-4bb8-b4c7-b9d827adab0a","597f1d7b-47ec-4207-a8b4-452043e0795c","88b17771-4dd3-44d2-95bc-cbe5cfa50567","b42ded5d-2105-487c-a322-f11964e20f1c","d58f1a70-8b4c-4531-8ad7-14a34b57dd1d","f403926c-2892-4c24-b7e0-aa9aad236124","f5f372a3-5862-4365-a4fc-fc7e6978bb8c"]
 const rangeCoins = {
   lte: 0.98,
-  gte: 1.025 
+  gte: 1.06 
 }
 
 @Injectable()
@@ -248,7 +248,7 @@ export class TasksService {
           });
           const emailRequest : EmailRequestDto = {
             to: 'feleteli@egresados.ubiobio.cl',
-            from: 'no-reply@digitalaccount.store',
+            from: 'no-reply@digitalhomex.xyz',
             subject: '',
             text: ''
           }

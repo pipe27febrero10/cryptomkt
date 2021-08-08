@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, BeforeInsert, OneToMany } from "typeorm";
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcryptjs'
 import { UserDto } from '../dto/user.dto'
 
 @Entity()

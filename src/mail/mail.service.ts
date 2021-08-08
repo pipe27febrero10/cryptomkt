@@ -29,7 +29,7 @@ export class MailService {
             from,
             subject,
             text,
-            html,
+            html: html ? html : 'Empty',
             timestamp: currentDate
         })
 

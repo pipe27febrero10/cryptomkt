@@ -9,29 +9,6 @@ services:
       - ./.env
     ports:
       - '3001:3001'
-    depends_on:
-      - mysql
-  mysql:
-    image: mysql:5.7
-    restart: always
-    container_name: exchanges_evaluator_mysql
-    environment:
-        MYSQL_DATABASE: ${DATABASE_MYSQL}
-        # So you don't have to use root, but you can if you like
-        MYSQL_USER: ${USERNAME_MYSQL}
-        # You can use whatever password you like
-        MYSQL_PASSWORD: ${PASSWORD_MYSQL}
-        # Password for root access
-        MYSQL_ROOT_PASSWORD: ${PASSWORD_MYSQL}
-    ports:
-        # <Port exposed> : < MySQL Port running inside container>
-        - '7306:3306'
-    expose:
-        # Opens port 3306 on the container
-        - '3306'
-        # Where our data will be persisted
-    volumes:
-        - exchanges_evaluator:/var/lib/mysql
   phpmyadmin:
     image: phpmyadmin
     restart: always
@@ -39,5 +16,5 @@ services:
       - 8080:80
     environment:
       - PMA_ARBITRARY=1
-volumes:
-  exchanges_evaluator:
+      - UPLOAD_LIMIT=750M
+      - MAX_EXECUTION_TIME=86400
