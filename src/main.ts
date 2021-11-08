@@ -9,7 +9,7 @@ async function bootstrap() {
   const options = new DocumentBuilder()
     .setTitle('Exchanges Crypto')
     .setDescription('Exchanges Crypto stock values')
-    .setVersion('1.1.3')
+    .setVersion('1.2.0')
     .addTag('Users')
     .addTag('Auth')
     .addTag('Cryptomkt')
@@ -23,6 +23,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(3001);
+  await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

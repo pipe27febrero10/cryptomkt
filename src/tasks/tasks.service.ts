@@ -28,7 +28,7 @@ import Orionx from 'orionx-sdk'
 
 const rangeCoins = {
   lte: 0.98,
-  gte: 1.06 
+  gte: 1.02
 }
 
 @Injectable()
@@ -119,56 +119,58 @@ export class TasksService {
     
   }
 
-  @Cron('*/20 * * * * *')
-  async updateCoinsCryptoMkt() {
-    let coinsCrypto: Array<CoinCrypto> = await this.coinServiceCrypto.getAll();
-    const cryptomktExchange: Exchange = await this.exchangeService.findByName(
-      cryptomktConstants.exchangeName,
-    );
+  // cryptomarket deprecated
 
-    coinsCrypto = coinsCrypto.reduce((accumulator, coinCrypto) => {
-      if (coinCrypto.exchange.id === cryptomktExchange.id) {
-        accumulator = [...accumulator, coinCrypto];
-      }
-      return accumulator;
-    }, []);
+  // @Cron('*/20 * * * * *')
+  // async updateCoinsCryptoMkt() {
+  //   let coinsCrypto: Array<CoinCrypto> = await this.coinServiceCrypto.getAll();
+  //   const cryptomktExchange: Exchange = await this.exchangeService.findByName(
+  //     cryptomktConstants.exchangeName,
+  //   );
 
-    const symbols: Array<string> = coinsCrypto.map(
-      coinCrypto => coinCrypto.symbol,
-    );
+  //   coinsCrypto = coinsCrypto.reduce((accumulator, coinCrypto) => {
+  //     if (coinCrypto.exchange.id === cryptomktExchange.id) {
+  //       accumulator = [...accumulator, coinCrypto];
+  //     }
+  //     return accumulator;
+  //   }, []);
 
-    const promises = symbols.map(symbol =>
-      this.cryptoMktService.getMarketPrice(symbol + 'CLP')
-    ); // get markets price in clp
-    let responses: Array<ResponseCryptoMkt> = null;
+  //   const symbols: Array<string> = coinsCrypto.map(
+  //     coinCrypto => coinCrypto.symbol,
+  //   );
 
-    responses = await Promise.all(promises);
-    const datas: Array<ResponseCoin> = responses.map(({ data }) => data[0]);
+  //   const promises = symbols.map(symbol =>
+  //     this.cryptoMktService.getMarketPrice(symbol + 'CLP')
+  //   ); // get markets price in clp
+  //   let responses: Array<ResponseCryptoMkt> = null;
 
-    const priceUsdInClp: number = this.dolarValue;
+  //   responses = await Promise.all(promises);
+  //   const datas: Array<ResponseCoin> = responses.map(({ data }) => data[0]);
 
-    datas.forEach(data => {
-      const symbol = data.market.substring(0, 3);
-      const coinCrypto: CoinCrypto = coinsCrypto.find(
-        coinCrypto => coinCrypto.symbol === symbol,
-      );
-      if (coinCrypto) {
-        if (priceUsdInClp) {
-          coinCrypto.priceClp = data.last_price;
-          coinCrypto.priceUsd = coinCrypto.priceClp / priceUsdInClp;
-          coinCrypto.lastUpdate = data.timestamp;
-          coinCrypto.bidPriceClp = data.bid;
-          coinCrypto.askPriceClp = data.ask;
-          coinCrypto.bidPriceUsd = coinCrypto.bidPriceClp / priceUsdInClp;
-          coinCrypto.askPriceUsd = coinCrypto.askPriceClp / priceUsdInClp;
-          coinCrypto.volume = data.volume;
-        }
-      }
-    });
-    await this.coinServiceCrypto.saveMany(
-      coinsCrypto,
-    );
-  }
+  //   const priceUsdInClp: number = this.dolarValue;
+
+  //   datas.forEach(data => {
+  //     const symbol = data.market.substring(0, 3);
+  //     const coinCrypto: CoinCrypto = coinsCrypto.find(
+  //       coinCrypto => coinCrypto.symbol === symbol,
+  //     );
+  //     if (coinCrypto) {
+  //       if (priceUsdInClp) {
+  //         coinCrypto.priceClp = data.last_price;
+  //         coinCrypto.priceUsd = coinCrypto.priceClp / priceUsdInClp;
+  //         coinCrypto.lastUpdate = data.timestamp;
+  //         coinCrypto.bidPriceClp = data.bid;
+  //         coinCrypto.askPriceClp = data.ask;
+  //         coinCrypto.bidPriceUsd = coinCrypto.bidPriceClp / priceUsdInClp;
+  //         coinCrypto.askPriceUsd = coinCrypto.askPriceClp / priceUsdInClp;
+  //         coinCrypto.volume = data.volume;
+  //       }
+  //     }
+  //   });
+  //   await this.coinServiceCrypto.saveMany(
+  //     coinsCrypto,
+  //   );
+  // }
 
   @Cron('*/20 * * * * *')
   async updateCoinsBuda() {

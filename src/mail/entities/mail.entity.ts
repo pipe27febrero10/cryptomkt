@@ -12,7 +12,7 @@ export class Mail{
     subject: string;
     @Column()
     text: string;
-    @Column()
+    @Column({nullable: true})
     html: string;
     @Column()
     emailSend: boolean;

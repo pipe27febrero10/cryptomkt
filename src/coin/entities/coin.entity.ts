@@ -8,7 +8,7 @@ export class Coin{
     id : string;
     @Column()
     name : string;
-    @Column({type: 'varchar',length : 3})
+    @Column({type: 'varchar',length : 4})
     symbol : string;
     @Column('decimal',{precision : 11,scale: 2})
     priceClp : number;

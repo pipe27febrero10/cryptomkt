@@ -71,10 +71,12 @@ export class BudaService {
             let askPriceUsd : number = askPriceClp/usdValueInClp
             let bidPriceusd : number = bidPriceClp/usdValueInClp
             let volume : number = Number(marketTicker.ticker.volume[0])
+
+            const subStringLength : number = marketTicker.ticker.market_id.substring(0,4) === 'USDC' ? 4 : 3;
             
             let createCoinDto : CreateCoinCryptoDto = {
-                name : cryptos[marketTicker.ticker.market_id.substring(0,3)],
-                symbol : marketTicker.ticker.market_id.substring(0,3),
+                name : cryptos[marketTicker.ticker.market_id.substring(0,subStringLength)],
+                symbol : marketTicker.ticker.market_id.substring(0,subStringLength),
                 priceClp : priceClp,
                 priceUsd : priceUsd,
                 askPriceClp : askPriceClp,
@@ -86,9 +88,8 @@ export class BudaService {
             }
             createCoinsDto = [...createCoinsDto,createCoinDto]
         }
-
         let coins : Array<CoinCrypto> =  []
-        coins = await this.coinService.createMany(createCoinsDto,idExchange)    
+        coins = await this.coinService.createMany(createCoinsDto,idExchange)
         return coins
     }
 
