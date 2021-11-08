@@ -37,7 +37,14 @@ export class MailService {
         {
             await sgMail.send(emailRequestDto)
             mail.emailSend = true
-            await this.mailRepository.save(mail).catch(err => console.log(`error by sending email ${err}`))
+            try{
+                await this.mailRepository.save(mail)
+            }
+            catch(err)
+            {
+                console.log(`error by saving email ${err}`)
+            }
+            
         }
         catch(err)
         {
